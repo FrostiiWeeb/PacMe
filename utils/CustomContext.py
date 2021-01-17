@@ -1,3 +1,5 @@
+# Credit to ImVaskel on GitHub.
+
 import discord
 from discord.ext import commands
 from datetime import datetime
