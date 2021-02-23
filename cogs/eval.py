@@ -5,6 +5,7 @@ import textwrap
 from traceback import format_exception
 from discord.ext import commands
 import asyncio
+import datetime
 from discord.ext.buttons import Paginator
 
 class Pag(Paginator):
@@ -43,6 +44,14 @@ def clean_code(content):
 class Eval(commands.Cog, command_attrs={"hidden": True}):
     def __init__(self, bot):
     	self.bot = bot
+    
+    class ErrorEmbed(discord.Embed):
+        def __init__(self, description, **kwargs):
+                         super().__init__(color=0x2F3136,
+                         title="Uh..",
+                         description=description,
+                         timestamp=datetime.datetime.utcnow())
+                         
     @commands.command(hidden=True,name="eval", aliases=["exec"], help="Evaluate code, idk.", brief="Evaluate code.")
     @commands.is_owner()
     async def _eval(self, ctx, *, code):
@@ -70,9 +79,12 @@ class Eval(commands.Cog, command_attrs={"hidden": True}):
     	           	)
     	           	obj = await local_variables["func"]()
     	           	result = f"{stdout.getvalue()}\n-- {obj}\n"
-    	except Exception as e:
+    	except Exception as e:    		
     		result = "".join(format_exception(e, e, e.__traceback__))
-    	
+    		await ctx.message.add_reaction(self.bot.emoji_dict["redTick"])
+    		
+    		
+    	await ctx.message.add_reaction(self.bot.emoji_dict["greenTick"])
     	pager = Pag(
     	timeout=100,
     	entries=[result[i: i + 2000] for i in range(0, len(result), 2000)],

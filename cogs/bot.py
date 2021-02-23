@@ -38,6 +38,11 @@ class Misc(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 		self.process = Process(os.getpid())
+		self.bot.since_start = 0
+	
+	@commands.Cog.listener('on_command_completion')
+	async def on_compl(self, ctx):
+		self.bot.since_start += 1
 		
 	@commands.command(aliases=['src'], help="Get the source!", brief="Get the source!")
 	async def source(self, ctx, *, command: str = None):
@@ -100,8 +105,7 @@ class Misc(commands.Cog):
 	async def on_ready(self):
 						print(f"{self.__class__.__name__} Cog has been loaded\n-----")		
 
-						
-																		
+											
 	@commands.command(brief="Latency for the bot!",help="Get the latency of the bot.")
 	async def ping(self, ctx):
 		start = time.perf_counter()
@@ -122,7 +126,7 @@ class Misc(commands.Cog):
 	       process = psutil.Process(os.getpid())
 	       embed = discord.Embed(color = 0x2f3136, title=f'Info', description=f'{ctx.bot.description}\nNote: My prefix is **"{ctx.prefix}"**')
 	       embed.add_field(name='Info:', value=f"{self.bot.emoji_dict['greyTick']} **Developer\'s -** [FrostiiWeeb](https://discord.com/users/746807014658801704), [Cyrus](https://discord.com/users/668906205799907348)\n{self.bot.emoji_dict['greyTick']} **Last boot -** {humanize.naturaltime(datetime.datetime.utcnow() - self.bot.launch_time)}\n{self.bot.emoji_dict['greyTick']} **Library -** [discord.py](https://pypi.org/project/discord.py/)\n{self.bot.emoji_dict['greyTick']} **Created - ** {humanize.naturaltime(x.created_at)}\n{self.bot.emoji_dict['greyTick']} **Command Credit -** **Rainbow#8292 - Info command**,\n**averwhy#3899 - Maintenace**,\n**Vaskel#5683 - License, ctx.embed**", inline=False)
-	       embed.add_field(name='Stats:', value=f"{self.bot.emoji_dict['greyTick']} **Number of commands -** {len(self.bot.commands)}\n{self.bot.emoji_dict['greyTick']} **Guilds -** {len(list(map(str, [p.id for p in self.bot.guilds])))}\n{self.bot.emoji_dict['greyTick']} **Users -** {len(list(map(str, [p.id for p in self.bot.users])))}\n{self.bot.emoji_dict['greyTick']} **Using {humanize.naturalsize(process.memory_info().rss)} physical memory, {humanize.naturalsize(process.memory_info().vms)} virtual memory.**",inline=False)
+	       embed.add_field(name='Stats:', value=f"{self.bot.emoji_dict['greyTick']} **Number of commands -** {len(self.bot.commands)}\n{self.bot.emoji_dict['greyTick']} **Guilds -** {len(list(map(str, [p.id for p in self.bot.guilds])))}\n{self.bot.emoji_dict['greyTick']} **Users -** {len(list(map(str, [p.id for p in self.bot.users])))}\n{self.bot.emoji_dict['greyTick']} **Using {humanize.naturalsize(process.memory_info().rss)} physical memory, {humanize.naturalsize(process.memory_info().vms)} virtual memory.**\n{self.bot.emoji_dict['greyTick']} **Commands ran since last restart -** {str(self.bot.since_start)}",inline=False)
 	       embed.add_field(name="Code Stats:", value=f"{self.bot.emoji_dict['greyTick']} **Files:** {fc}\n{self.bot.emoji_dict['greyTick']} **Lines:** {ls:,}\n{self.bot.emoji_dict['greyTick']} **Classes:** {cl}\n{self.bot.emoji_dict['greyTick']} **Functions:** {fn}\n{self.bot.emoji_dict['greyTick']} **Coroutines:** {cr}\n{self.bot.emoji_dict['greyTick']} **Comments:** {cm:,}", inline=False)
 	       embed.add_field(name='Links:', value=f"{self.bot.emoji_dict['greyTick']} **Invite Link -** [Here](https://top.gg/bot/784122061219954708)\n{self.bot.emoji_dict['greyTick']} **Source (Github) -** [Here](https://github.com/FrostiiWeeb/PacMe)",inline=False)
 	       await ctx.send(embed=embed)

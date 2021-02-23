@@ -25,7 +25,11 @@ def get_embed(_title, _description, _color):
 class Fun(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-
+        self.r = praw.Reddit(client_id= "4DS49vhbKM7Z0A",
+     client_secret = "y0q6O6ApzmPxAER3MfkjEkwiScHI9Q",
+     username="FrostiiWeeb",
+     password="iamreddit",
+     user_agent="FrostiiA")
         self.timeouts = [20, 25, 30, 40, 45, 50, 55, 60]   
 
         
@@ -173,7 +177,7 @@ class Fun(commands.Cog):
     	await asyncio.sleep(1)
     	await msg.edit(embed=embedg)
     	def check(reaction, user):
-    		return str(reaction.emoji) == add_reaction and not user == self.bot.user
+    		return str(reaction.emoji) == add_reaction and not user == self.bot.user and not user.bot
     	try:
     		startt = time.time()
     		await msg.add_reaction(add_reaction)
@@ -237,16 +241,12 @@ class Fun(commands.Cog):
                 description=f"```\n{guess.author} got it, and took:```\n```{round(diff)} seconds.```")
      
     @commands.command()
-    async def reddit(self, ctx, *, reddit = None):
-     reddit = praw.Reddit(client_id= "4DS49vhbKM7Z0A",
-     client_secret = "y0q6O6ApzmPxAER3MfkjEkwiScHI9Q",
-     username="FrostiiWeeb",
-     password="iamreddit",
-     user_agent="FrostiiA")
+    async def reddit(self, ctx, sub_r = None):
+     reddit = self.r
      try:
-     	subr = await reddit.subreddit(f"{reddit}")
+     	subr = await reddit.subreddit(sub_r)
      	all_subs = []
-     	top = subr.top(limit=99)
+     	top = subr.top(limit=200)
      	async for sub in top:
      		all_subs.append(sub)
      	
@@ -262,11 +262,7 @@ class Fun(commands.Cog):
 
     @commands.command(brief="Get some juicy memes!",help="Get some memes mate.",aliases=['memes'])
     async def meme(self, ctx):
-     reddit = praw.Reddit(client_id= "4DS49vhbKM7Z0A",
-     client_secret = "y0q6O6ApzmPxAER3MfkjEkwiScHI9Q",
-     username="FrostiiWeeb",
-     password="iamreddit",
-     user_agent="FrostiiA")
+     reddit = self.r
      try:
      	subr = await reddit.subreddit("memes")
      	all_subs = []

@@ -10,7 +10,7 @@ import random
 class Economy(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
-		self.amt = random.randint(1, 5)
+		self.amt = random.randint(1, 20)
 	
 	async def open_account(self, user):
 		await self.bot.eco.upsert({"_id": user.id, "wallet": 100, "bank": 0, "bankc": 1000})
@@ -45,9 +45,10 @@ class Economy(commands.Cog):
 				
 	@commands.command(help="get the leaderboard")
 	async def lb(self, ctx):
-		data = await self.bot.eco.get_all()
 		lb = await self.bot.eco.get_all()
-		docs = sorted(lb, key=itemgetter('wallet'), reverse=True)
+		def check(data):
+			return data['wallet']
+		docs = sorted(lb, key=itemgetter('wallet'),reverse=True)
 		user = docs[0]['_id']
 		total = docs[0]['wallet'] + docs[0]['bank']		
 		user = await self.bot.fetch_user(user)
@@ -61,7 +62,7 @@ class Economy(commands.Cog):
 		user3 = await self.bot.fetch_user(user3)
 		# ////
 		user4 = docs[3]['_id']
-		total4 = docs[3]['wallet'] + docs[3]['bank'] or docs[3]['wallet'] + docs[3]['bank']
+		total4 = docs[3]['wallet'] + docs[3]['bank'] 
 		user4 = await self.bot.fetch_user(user4)		
 		await ctx.embed(title="Top 4 in the leaderboard.",description=f"This is made of the wallet and bank in total.\n\n{user} => **{total:,}$**\n{user2} => **{total2:,}$**\n{user3} => **{total3:,}$**\n{user4} => **{total4:,}$**")
 	
@@ -255,7 +256,7 @@ class Economy(commands.Cog):
 		bc = bal['bankc']
 		b = bal['bank']
 		if b == bc:
-			await ctx.embed( description="Ya reached your bank capacity!")	
+			await ctx.embed(description="Ya reached your bank capacity!")	
 			return	
 		try:
 		    if str(money) == "all" or str(money) == "max":

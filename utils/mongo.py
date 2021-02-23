@@ -172,15 +172,15 @@ class Document:
             return
 
         await self.db.update_one({"_id": id}, {"$inc": {field: amount}})
-
+        
     async def get_all(self):
         """
         Returns a list of all data in the document
         """
         data = []
         async for document in self.db.find({}):
-            data.append(json.dumps(document, indent=4))
-        return data
+            data.append(document)
+        return data        
 
     # <-- Private methods -->
     async def __get_raw(self, id):

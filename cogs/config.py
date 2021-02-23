@@ -38,8 +38,10 @@ class Config(commands.Cog, name="Configuration"):
     )
     @commands.has_permissions(administrator=True)
     async def prefix(self, ctx, *, prefix="!*"):
+             
         await self.bot.config.upsert({"_id": ctx.guild.id, "prefix": prefix})
-        await ctx.embed(title="Updated Prefix", description=f"**Changed prefix to:**\n{prefix}\n**Example:**\n{prefix}help")
+        self.bot.cache[ctx.guild.id] = await self.bot.config.get_by_id(ctx.guild.id)   
+        await ctx.embed(description=f"**Changed prefix to:**\n{prefix}\n**Example:**\n{prefix}help")
 
 
 def setup(bot):

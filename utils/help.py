@@ -50,11 +50,6 @@ class HelpMenu(ListPageSource):
 
 		return await self.write_page(menu, fields)		
 
-async def cog_help(ctx, cog):
-	commands = ", ".join([c.qualified_name for c in cog.get_commands()])
-	embed = Embed(title=f"Help with {cog.qualified_name}", description=f"**Commands**\n{commands}\n\n**Description**\n{cog.description}" if cog.description else f"**Commands**\n{commands}")
-	return await ctx.send(embed=embed)
-
 async def cmd_help(ctx, command):
 	if command.hidden:
 		return
@@ -67,6 +62,9 @@ async def cmd_help(ctx, command):
 					  await ctx.send(embed=embed)
 
 class Help(commands.HelpCommand):
+	def get_command_signature(self, command):
+		return '%s %s' % (command.qualified_name, command.signature)
+
 	async def send_bot_help(self, mapping):
 		menu = MenuPages(source=HelpMenu(self.context, list(self.context.bot.commands)),
 		delete_message_after=True,
@@ -77,4 +75,10 @@ class Help(commands.HelpCommand):
 		await cmd_help(ctx=self.context, command=command)
 	
 	async def send_cog_help(self, cog):
-		await cog_help(ctx=self.context, cog=cog)
+		commands = "\n".join([self.get_command_signature(c) for c in cog.get_commands()])
+		embed = Embed(title=f"Help with {cog.qualified_name}", description=f"**Commands**\n{commands}\n\n**Description**\n{cog.description}" if cog.description else f"**Commands**\n{commands}")
+		ctx = self.get_destination()
+		await ctx.send(embed=embed)	
+		
+	async def send_error_message(self, error):
+		await self.context.embed(description=error)

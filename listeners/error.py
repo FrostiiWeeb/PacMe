@@ -7,14 +7,23 @@ from discord.ext import commands
 from discord.ext.commands import command
 from discord.ext.commands import Cog
 
-class Error(commands.Cog):
+class ErrorEmbed(discord.Embed):
+    def __init__(self, description, **kwargs):
+        super().__init__(color=0x2F3136,
+                         title="An error occurred!",
+                         description=description,
+                         timestamp=datetime.datetime.utcnow(), url="https://discord.gg/G2PekUfD59")
+
+
+class Error(Cog):
     def __init__(self, bot):
         self.bot = bot
 
-        self.errors = {
+        self.bot.errors = {
             commands.MissingRequiredArgument: "Missing required argument(s): "
                                               "{error.param}",
-            commands.MissingPermissions: "Missing permission(s).",
+            commands.MissingPermissions: f"Missing required permission(s).",                                            
+            commands.BotMissingPermissions: "Im missing permission(s).",
             commands.NotOwner: "You don't own this bot.",
             commands.NSFWChannelRequired: "{ctx.command} is required to be "
                                           "invoked in a NSFW channel.",
@@ -38,18 +47,19 @@ class Error(commands.Cog):
         error = getattr(error, "original", error)
         description: str = None
 
-        if isinstance(error, tuple(self.errors.keys())):
+        if isinstance(error, tuple(self.bot.errors.keys())):
             reinvokable = (isinstance(error, commands.MissingPermissions) and
                            await self.bot.is_owner(ctx.author))
 
             if reinvokable:
                 return await ctx.reinvoke()
-            description = str.format(self.errors[type(error)],
+            description = str.format(self.bot.errors[type(error)],
                                      ctx=ctx,
                                      error=error)
         else:
-            if isinstance(error, commands.CommandNotFound):
-            	return    	
+            ignored = (commands.CommandNotFound, commands.CheckFailure,)
+            if isinstance(error, ignored):
+            	return 
             formatted = traceback.format_exception(
                 type(error),
                 error,
@@ -57,17 +67,14 @@ class Error(commands.Cog):
             )
             description = ("").join(formatted)
             print(description, file=sys.stderr)
-        log_channel = discord.Embed(colour=self.bot.grey, title="Error", description=f"**Error Author:** {ctx.author}\n**Error Guild:** {ctx.guild.name}\n**Main Error:** ```\n{description}\n```")
-        embed = discord.Embed(
-            colour=0x2f3136,
-            description=f"{description}",
-            title="Uh.."
-        )
-
+                        
         try:
-            channel = self.bot.get_channel(789892435190349860)
-            await channel.send(embed=log_channel)
-            await ctx.reply(embed=embed)
+            formatted = traceback.format_exception(
+                type(error),
+                error,
+                error.__traceback__
+            )
+            await ctx.reply(embed=ErrorEmbed(description=f"```\n{description}\n```"))
         except discord.Forbidden:
             pass
 

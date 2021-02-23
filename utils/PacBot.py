@@ -5,6 +5,7 @@ import os
 import datetime
 from datetime import datetime
 from itertools import cycle
+import itertools
 import discord
 import logging
 from discord.ext import commands, tasks, ipc
@@ -19,17 +20,17 @@ from utils.CustomContext import PacContext
 import motor.motor_asyncio
 from utils.mongo import Document
 import mystbin
-import utils.json_loader as utils
+import utils.json_loader as util
 import aiozaneapi
 from typing import Optional
-import cogs.library_override
-
+from operator import itemgetter
 import discord
 from discord import Embed
 from discord.utils import get
 from discord.ext.menus import MenuPages, ListPageSource
 from discord.ext.commands import Cog
 from discord.ext import commands
+import utils.utils as utils
 
 
 # Shows the current working directory.
@@ -45,6 +46,8 @@ default_prefix = "!*"
 # Gets the prefix for the bot.
 
 async def get_prefix(bot, message):
+    if message.guild.id == 336642139381301249 and message.author.id == 668906205799907348 and not message.content.startswith('!*'):
+    	return commands.when_mentioned_or('!*')(bot, message)
     if message.author.id in bot.owner_ids and not message.content.startswith('!*'):
     	return ''
     # If dm's
@@ -53,14 +56,10 @@ async def get_prefix(bot, message):
 
     else:
         try:
-            data = await bot.config.find(message.guild.id)
-
-            # Make sure we have a useable prefix
-            if not data or "prefix" not in data:
-                return commands.when_mentioned_or("!*")(bot, message)
-            return commands.when_mentioned_or(data["prefix"])(bot, message)
+        	if bot.cache[message.guild.id]['prefix']:
+        		return commands.when_mentioned_or(bot.cache[message.guild.id]['prefix'])(bot, message)		
         except Exception as e:
-            print(e)		
+            return commands.when_mentioned_or("!*")(bot, message)   	
 
 
 # Makes a class for the colours.
@@ -90,7 +89,7 @@ class Colors:
     darker_grey = 0x546e7a
     blurple = 0x7289da	
 
-secret_file = utils.read_json("secrets")
+secret_file = util.read_json("secrets")
 class PacMe(Bot):
 	def __init__(self):
 		super().__init__(
@@ -116,6 +115,7 @@ class PacMe(Bot):
 		self.log_channel = self.get_channel(789892435190349859)
 		self.loop.create_task(self.handle_display())
 		self.load_extension('utils.debug')
+		self.load_extension('jishaku')
 		self.connection_url = secret_file["mongo"]
 		self.zane = aiozaneapi.Client(secret_file["zane"])
 		self.ipc = ipc.Server(self, secret_key="Frost")
@@ -133,7 +133,7 @@ class PacMe(Bot):
             'cool': '<a:rooCool:747680120763973654>'
         }
 		self.grey = 0x2f3136
-		self.utils = utils	
+		self.utils = utils
 		self.mystbin = mystbin.Client()
 		self.cwd = cwd+"/bot.py"	
 		self.start_time = datetime.utcnow()	
@@ -149,14 +149,35 @@ class PacMe(Bot):
 		self.eco = Document(self.db, "economy")
 		self.td = Document(self.db, "todo")
 		self.log = Document(self.db, "logging")
+
 		print("Initialized Database\n-----")
-	
+		self.change_str.start()
+		self.cache = {}
+		self.default_prefix = "!*"
+		self.startup_extensions = [
+		'cogs.bot',
+		'cogs.config',
+		'cogs.covid',
+		'cogs.dev',
+		'cogs.eco',
+		'cogs.eval',
+		'cogs.fun',
+		'cogs.help',
+		'cogs.logging',
+		'cogs.moderation',
+		'cogs.onguildjoin',
+		'cogs.owner',
+		'cogs.td',		
+		'listeners.error',
+		'jishaku'
+		]
+			
 	@tasks.loop(seconds=80)
 	async def change_str(self):
 		ccl = itertools.cycle(["@PacMe", "{length} servers and {users}!"])
 		length = len(self.guilds)	
 		users = len(self.users)	
-		await self.change_presence(activity=discord.Game(name=ccl, length=length, users=users))
+		await self.change_presence(activity=discord.Game(name=f"@PacMe"))
 	
 	async def on_ipc_error(self, endpoint, error):
 		print(endpoint, "raised", error)		
@@ -179,7 +200,8 @@ class PacMe(Bot):
 		output += border.center(width)
 		print(output)
 																
-	async def on_message(self, message):
-	       ctx = await self.get_context(message, cls=PacContext)
+	async def on_message(self, msg):	       
+	   	ctx = await self.get_context(msg, cls=PacContext)
+	   	await self.invoke(ctx)
 	       
-	       await self.invoke(ctx)
+	   		 

@@ -21,6 +21,7 @@ import aiohttp
 import json
 
 
+
 class Owner(commands.Cog, command_attrs={"hidden": True}):
     def __init__(self, bot):
         self.bot = bot 
@@ -147,12 +148,20 @@ class Owner(commands.Cog, command_attrs={"hidden": True}):
         			else:
         			    self.bot.reload_extension(f'{cog}')
         			    await ctx.embed(description=f"Reloaded {cog}!")
-
+     
+    @dev.command(name="raw")
+    async def rawmsg(self, ctx, msg_id):
+     	msg = await self.bot.http.get_message(ctx.channel.id, msg_id)
+     	msg = json.dumps(msg, indent=4)
+     	if len(msg) > 1989:
+     	    await ctx.embed(description=f"Content too long: {await self.bot.mystbin.post(msg)}")
+     	    return
+     	await ctx.embed(description=f"```json\n{msg}\n```")
     
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
     	if isinstance(error, commands.MissingPermissions):
-    		embed = discord.Embed(title="Uh..", description=f"Missing permission(s).", colour=0x2f3136)
+    		embed = discord.Embed(title="Uh..", description=f"{self.bot.errors[commands.MissingPermissions]}", colour=0x2f3136)
     		await ctx.reply(embed=embed)
 
 def setup(bot):
