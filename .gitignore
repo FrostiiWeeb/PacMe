@@ -131,3 +131,6 @@ dmypy.json
 # Custom
 .flake8
 dev/
+
+# Token
+bot_config/secrets.json
