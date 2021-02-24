@@ -130,4 +130,4 @@ dmypy.json
 
 # Custom
 .flake8
-.json
+bot_config/*
