@@ -11,7 +11,7 @@ A bot, with small number of servers.
 
 Bot is not always online, be aware of that.  
 Bot is in work in progress.  
-Join the [support server](https://some.link)!  
+Join the [support server](https://discord.gg/G2PekUfD59)!  
 Enjoy your time with `PacMe`.
 
 -- FrostiiWeeb And Cyrus
