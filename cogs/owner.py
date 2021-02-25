@@ -64,8 +64,6 @@ class Owner(commands.Cog, command_attrs={"hidden": True}):
 	    if ctx.author.id in self.bot.owner_ids:
 	        
 		    self.bot.maint = True
-		    self.bot.prefix_cache = await self.bot.config.get_all()  
-		    self.bot.eco_cache = await self.bot.eco.get_all()
 		    embed = discord.Embed(title="Ya been confirmed to use maintenance mode!", colour=0x2f3136)	
 		    await ctx.send(embed=embed)
 	    else:

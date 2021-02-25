@@ -49,9 +49,20 @@ class HelpMenu(ListPageSource):
 
 		return await self.write_page(menu, fields)
 
-async def cmd_help(self, ctx, command):
+async def cmd_help(ctx, command):
 					  embed = Embed(title=f"Help with `{command}`",
-					  description=syntax(command),
-					  colour=ctx.bot.grey)
+					  description=syntax(command))
 					  embed.add_field(name="Command description", value=command.help or command.brief)
 		await ctx.send(embed=embed)
+	
+class PaginatedHelp(commands.HelpCommand):
+	async def send_bot_help(self, mapping):
+		menu = MenuPages(source=HelpMenu(ctx, list(self.context.bot.commands)),
+		delete_message_after=True,
+		timeout=60.0)
+		
+		await menu.start(self.context)
+	
+	async def send_command_help(self, command):
+		return await cmd_help(ctx=self.context, command=command)
+		
