@@ -4,6 +4,7 @@ from discord import Embed
 from discord.utils import get
 from discord.ext.menus import MenuPages, ListPageSource
 from discord.ext.commands import Cog
+from discord.ext import commands
 from discord.ext.commands import command
 
 
@@ -57,7 +58,7 @@ async def cmd_help(ctx, command):
 	
 class PaginatedHelp(commands.HelpCommand):
 	async def send_bot_help(self, mapping):
-		menu = MenuPages(source=HelpMenu(ctx, list(self.context.bot.commands)),
+		menu = MenuPages(source=HelpMenu(ctx=self.context, data=list(self.context.bot.commands)),
 		delete_message_after=True,
 		timeout=60.0)
 		

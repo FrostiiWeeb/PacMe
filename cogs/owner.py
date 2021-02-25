@@ -19,7 +19,7 @@ from discord.ext.commands import command, has_permissions
 import sys
 import aiohttp
 import json
-
+import subprocess
 
 
 class Owner(commands.Cog, command_attrs={"hidden": True}):
@@ -161,6 +161,18 @@ class Owner(commands.Cog, command_attrs={"hidden": True}):
     	if isinstance(error, commands.MissingPermissions):
     		embed = discord.Embed(title="Uh..", description=f"{self.bot.errors[commands.MissingPermissions]}", colour=0x2f3136)
     		await ctx.reply(embed=embed)
+    
+    @dev.command(hidden=True)
+    async def sync(self, ctx):
+    	out = subprocess.check_output("git pull", shell=True)
+    	await ctx.send(f"```\n{out.decode('utf-8')}\n```")		
+    	for ext in self.bot.coglist:
+    		self.bot.reload_extension(ext)
+    
+    @dev.command(hidden=True)
+    async def upload(self, ctx):
+    	out = subprocess.check_output("git rm -r --cached . && git add . && git commit -m 'Updated github.' && git push", shell=True)
+    	await ctx.send(f"```\n{out.decode('utf-8')}\n```")    	    	
 
 def setup(bot):
     bot.add_cog(Owner(bot))

@@ -1,7 +1,7 @@
-from discord.ext import commands as cmd
+from discord.ext import commands
 from utils.help import PaginatedHelp
 
-class Help(cmd.Cog):
+class Help(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 		self._original_help = bot.help_command
