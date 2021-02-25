@@ -47,12 +47,12 @@ class PacMe(BotBase):
 		
 		# Cogs
 		
-        self.coglist = [f"cogs.{item[:-3]}" for item in os.listdir("/storage/emulated/0/PacMe/cogs") if item != "__pycache__"] + ["jishaku"]
-        for extension in self.coglist:
-        	try:
-        		self.load_extension(extension)	
-        	except Exception as e:
-        		print(e)
+		self.coglist = [f"cogs.{item[:-3]}" for item in os.listdir("/storage/emulated/0/PacMe/cogs") if item != "__pycache__"] + ["jishaku"]
+		for extension in self.coglist:
+		      		try:
+		      			self.load_extension(extension)
+		      		except Exception as e:
+		      			print(e)
 		
 		# Cache
 		
