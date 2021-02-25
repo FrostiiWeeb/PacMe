@@ -171,7 +171,7 @@ class Owner(commands.Cog, command_attrs={"hidden": True}):
     
     @dev.command(hidden=True)
     async def upload(self, ctx):
-    	out = subprocess.check_output("git rm -r --cached . && git add . && git commit -m 'Updated github.' && git push", shell=True)
+    	out = subprocess.check_output("git push", shell=True)
     	await ctx.send(f"```\n{out.decode('utf-8')}\n```")    	    	
 
 def setup(bot):

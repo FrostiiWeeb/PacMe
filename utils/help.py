@@ -23,7 +23,7 @@ def syntax(command):
 
 class HelpMenu(ListPageSource):
 	def __init__(self, ctx, data):
-		self.ctx = ctx
+		self.lmao = ctx
 
 		super().__init__(data, per_page=3)
 
@@ -32,9 +32,8 @@ class HelpMenu(ListPageSource):
 		len_data = len(self.entries)
 
 		embed = Embed(title="Help",
-					  description="Welcome to the {self.ctx.bot.user.name} help menu!",
-					  colour=self.ctx.bot.grey)
-		embed.set_thumbnail(url=self.ctx.guild.me.avatar_url)
+					  description=f"Welcome to the {self.lmao.bot.user.name} help menu!")
+		embed.set_thumbnail(url=self.lmao.guild.me.avatar_url)
 		embed.set_footer(text=f"{offset:,} - {min(len_data, offset+self.per_page-1):,} of {len_data:,} commands.")
 
 		for name, value in fields:
@@ -53,6 +52,7 @@ class HelpMenu(ListPageSource):
 async def cmd_help(ctx, command):
 					  embed = Embed(title=f"Help with `{command}`",
 					  description=syntax(command))
+
 					  embed.add_field(name="Command description", value=command.help or command.brief)
 					  await ctx.send(embed=embed)
 	
