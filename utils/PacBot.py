@@ -44,10 +44,28 @@ class PacMe(BotBase):
 		command_prefix = "!*",
 		owner_ids={668906205799907348, 746807014658801704},
 		)
+		
+		# Cogs
+		
+        self.coglist = [f"cogs.{item[:-3]}" for item in os.listdir("/storage/emulated/0/PacMe/cogs") if item != "__pycache__"] + ["jishaku"]
+        for extension in self.coglist:
+        	try:
+        		self.load_extension(extension)	
+        	except Exception as e:
+        		print(e)
+		
+		# Cache
+		
 		self.empty_cache = {"prefix:" "!*"}
 		self.cache = {}
+		
+		# Config
+		
 		self.connection_url = secret_file["mongo"]
 		self.config_tokem = secret_file["token"]
+		
+		# Database
+		
 		self.mongo = motor.motor_asyncio.AsyncIOMotorClient(str(self.connection_url))
 		self.db = self.mongo["frostiiweeb"]
 		self.config = Document(self.db, "config")			
