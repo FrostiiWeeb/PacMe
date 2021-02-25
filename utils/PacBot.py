@@ -80,4 +80,7 @@ class PacMe(BotBase):
 		self.config = Document(self.db, "config")
 		
 	async def on_ready(self):
-		print(f"----\nBot is online\n\nUser: {self.user}\nID: {self.user.id}\nWorking on: {len(self.guilds)} guilds.\n----")	
+		print(f"----\nBot is online\n\nUser: {self.user}\nID: {self.user.id}\nWorking on: {len(self.guilds)} guilds.\n----")
+	
+	async def get_context(self, message, *, cls=None):
+		return await super().get_context(message, cls=cls or PacContext)	
