@@ -53,7 +53,7 @@ async def cmd_help(ctx, command):
 					  embed = Embed(title=f"Help with `{command}`",
 					  description=syntax(command))
 					  embed.add_field(name="Command description", value=command.help or command.brief)
-		await ctx.send(embed=embed)
+					  await ctx.send(embed=embed)
 	
 class PaginatedHelp(commands.HelpCommand):
 	async def send_bot_help(self, mapping):
