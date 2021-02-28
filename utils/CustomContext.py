@@ -35,7 +35,7 @@ class PacContext(commands.Context):
 				c = discord.Embed(title="Aight!", description=f'Alright!', color=discord.Color.green())
 				await m.edit(embed=c)
 			else:
-				n = discord.Embed(title="Aight!", description=f'{confirm_msg} -> Alright {self.author}!', color=discord.Color.red())
+				n = discord.Embed(title="Aight!", description=f'Alright {self.author}!', color=discord.Color.red())
 				await m.edit(embed=n)
 		except:
 			await self.send("Ya took too long")

@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+import asyncio
 
 class Welcome(commands.Cog):
 	def __init__(self, bot):
@@ -9,9 +10,11 @@ class Welcome(commands.Cog):
 	async def member_join(self, member):
 		data = await self.bot.w.get_by_id(member.guild.id)
 		if data:
-			ctx = await self.bot.fetch_channel(data['channel_id'])
+			channel = await self.bot.fetch_channel(data['channel_id'])
 			msg = data['welcome_message']
-			await ctx.send(msg)
+			await chanel.send(f"{msg}")
+		else:
+			return
 	
 	@commands.group(invoke_without_command=True, name="welcome")
 	async def welcome(self, ctx):
@@ -20,16 +23,17 @@ class Welcome(commands.Cog):
 		"""
 	
 	@welcome.command(name="setup")
+	@commands.is_owner()
 	async def set_channel(self, ctx):
 		author = ctx.author
 		try:
 			def check(m):
 				return m.author == ctx.author and m.channel == ctx.channel
-			id = await self.bot.wait_for("message", timeout=10.0, check=check)
 			await ctx.embed(description="Send the channel ID where the welcome message is sent.")
+			id = await self.bot.wait_for("message", timeout=10.0, check=check)			
 			channel_id = id.content
+			await ctx.embed(description="Send the message to be the welcome msg.\nUse \"default\" to use the default msg.")			
 			msg = await self.bot.wait_for("message", timeout=10.0, check=check)
-			await ctx.embed(description="Send the message to be the welcome msg.\nUse \"default\" to use the default msg.")
 			if msg.content == "default":
 				await ctx.embed(description="The message has been set to: " f"Hey! {ctx.author.name}! You have joined {ctx.guild.name}, welcome!")
 				msg = "Hey! {member.name}! You have joined {guild.name}, welcome!"
