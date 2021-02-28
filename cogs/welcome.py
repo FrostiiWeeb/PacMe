@@ -19,7 +19,7 @@ class Welcome(commands.Cog):
 		A welcome thing lmao idk
 		"""
 	
-	@welcome.command(name="channel")
+	@welcome.command(name="setup")
 	async def set_channel(self, ctx):
 		author = ctx.author
 		try:
@@ -37,6 +37,8 @@ class Welcome(commands.Cog):
 				msg = msg
 			await self.bot.w.upsert({"_id": ctx.guild.id, "channel_id": channel_id, "welcome_message": msg})
 			await ctx.confirm(f"Is this correct:\nchannel_id: {channel_id}\nwelcome_msg: {msg}")
+		except asyncio.TimeoutError:
+				return
 				
 				
 def setup(bot):
