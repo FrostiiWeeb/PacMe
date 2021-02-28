@@ -32,7 +32,7 @@ class PacContext(commands.Context):
 		try:
 			reaction, user = await self.bot.wait_for("reaction_add", timeout=10.5, check=check)
 			if str(reaction.emoji) == self.bot.emoji_dict['greenTick']:
-				c = discord.Embed(title="Aight!", description=f'{confirm_msg} -> Alright {self.author}!', color=discord.Color.green())
+				c = discord.Embed(title="Aight!", description=f'Alright!', color=discord.Color.green())
 				await m.edit(embed=c)
 			else:
 				n = discord.Embed(title="Aight!", description=f'{confirm_msg} -> Alright {self.author}!', color=discord.Color.red())

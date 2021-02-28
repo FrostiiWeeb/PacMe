@@ -10,6 +10,10 @@ from discord.ext import commands
 from pathlib import Path
 import mystbin
 import motor.motor_asyncio
+try:
+	import psutil
+except:
+	pass
 
 # Local code
 
@@ -27,6 +31,9 @@ async def get_prefix(bot, message):
     # If dm's
     if not message.guild:
         return commands.when_mentioned_or("!*")(bot, message)
+    
+    if message.author.id in bot.owner_ids:
+    	return ''
 
     try:
         data = await bot.config.find(message.guild.id)
@@ -68,19 +75,29 @@ class PacMe(BotBase):
 		# Config
 		
 		self.connection_url = secret_file["mongo"]
-		self.config_token = secret_file["token"]
+		self._token = secret_file["token"]
 		self.maint = False
 		self.maintenence = False
+		self._underscore = True
 		self.mystbin = mystbin.Client()
-		
+		self.emoji_dict = {"greyTick": "<:greyTick:596576672900186113>", "greenTick": "<:greenTick:596576670815879169>", "redTick": "<:redTick:596576672149667840>"}
+	
 		# Database
 		
 		self.mongo = motor.motor_asyncio.AsyncIOMotorClient(str(self.connection_url))
 		self.db = self.mongo["frostiiweeb"]
 		self.config = Document(self.db, "config")
+		self.eco = Document(self.db, "economy")
+		self.w = Document(self.db, "welcome")
 		
 	async def on_ready(self):
-		print(f"----\nBot is online\n\nUser: {self.user}\nID: {self.user.id}\nWorking on: {len(self.guilds)} guilds.\n----")
+		    print(
+        "Logged in! \n"
+        f"{'-' * 20}\n"
+        f"Bot Name: {self.user} \n"
+        f"Bot ID: {self.user.id} \n"
+        f"{'-' * 20}"
+    )
 	
 	async def get_context(self, message, *, cls=None):
 		return await super().get_context(message, cls=cls or PacContext)	

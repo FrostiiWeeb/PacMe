@@ -131,3 +131,4 @@ dmypy.json
 # Custom
 .flake8
 bot_config/*
+__pycache__/*

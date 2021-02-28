@@ -56,7 +56,7 @@ class Developer(commands.Cog):
                 file = discord.File(io.BytesIO(res), filename="screenshot.png")
                 embed = discord.Embed(
                     title=f"```Screenshot of {url}```",
-                    color=self.bot.grey
+
                 )
                 embed.set_image(url="attachment://screenshot.png")
                 embed.set_footer(text=f"Image fetched in {ping} ms")

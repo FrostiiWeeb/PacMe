@@ -18,8 +18,7 @@ def syntax(command):
 
 	params = " ".join(params)
 
-	return f"`{cmd_and_aliases} {params}`"
-
+	return f"{cmd_and_aliases} {params}"
 
 class HelpMenu(ListPageSource):
 	def __init__(self, ctx, data):
@@ -50,11 +49,13 @@ class HelpMenu(ListPageSource):
 		return await self.write_page(menu, fields)
 
 async def cmd_help(ctx, command):
-					  embed = Embed(title=f"Help with `{command}`",
-					  description=syntax(command))
-
-					  embed.add_field(name="Command description", value=command.help or command.brief)
+					  embed = Embed(title=f"Help",
+					  description=syntax(command) + "\n" + command.help or command.brief)
 					  await ctx.send(embed=embed)
+					 
+async def cog_help(ctx, cog):
+	embed = Embed(title=cog.qualified_name)
+	await ctx.send(embed=embed)	
 	
 class PaginatedHelp(commands.HelpCommand):
 	async def send_bot_help(self, mapping):
@@ -66,4 +67,3 @@ class PaginatedHelp(commands.HelpCommand):
 	
 	async def send_command_help(self, command):
 		return await cmd_help(ctx=self.context, command=command)
-		
