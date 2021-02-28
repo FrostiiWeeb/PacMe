@@ -36,11 +36,11 @@ class Welcome(commands.Cog):
 			msg = await self.bot.wait_for("message", timeout=10.0, check=check)
 			if msg.content == "default":
 				await ctx.embed(description="The message has been set to: " f"Hey! {ctx.author.name}! You have joined {ctx.guild.name}, welcome!")
-				msg = "Hey! {member.name}! You have joined {guild.name}, welcome!"
+				msg = "Hey! {member.name}! You have joined {member.guild.name}, welcome!"
 			else:
 				msg = msg
 			await self.bot.w.upsert({"_id": ctx.guild.id, "channel_id": channel_id, "welcome_message": msg})
-			await ctx.confirm(f"Is this correct:\nchannel_id: {channel_id}\nwelcome_msg: {msg}")
+			await ctx.confirm(f"Is this correct?\nchannel_id: {channel_id}\nwelcome_msg: {msg}")
 		except asyncio.TimeoutError:
 				return
 				
