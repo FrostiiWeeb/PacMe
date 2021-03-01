@@ -30,8 +30,11 @@ class Welcome(commands.Cog):
 			def check(m):
 				return m.author == ctx.author and m.channel == ctx.channel
 			await ctx.embed(description="Send the channel ID where the welcome message is sent.")
-			id = await self.bot.wait_for("message", timeout=10.0, check=check)			
-			channel_id = id.content
+			id = await self.bot.wait_for("message", timeout=10.0, check=check)
+			try:
+				channel_id = int(id.content)
+			except:
+				return await ctx.embed(description=f"{id.content} is not an int.")
 			await ctx.embed(description="Send the message to be the welcome msg.\nUse \"default\" to use the default msg.")			
 			msg = await self.bot.wait_for("message", timeout=10.0, check=check)
 			if msg.content == "default":

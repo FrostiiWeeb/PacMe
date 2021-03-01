@@ -7,6 +7,7 @@ class Economy(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 		self.amt = __import__('random').randint(1, 7)
+		self.bot.jobs = {}
 		
 	async def open_account(self, user):
 		data = await self.get_bank_data(user)
@@ -85,7 +86,38 @@ class Economy(commands.Cog):
 		else:
 			m = int(money)
 			await self.update_bal(ctx.author, w+m, b-m, bc+self.amt)	
-			await ctx.embed(description=f"{self.bot.emoji_dict['greenTick']} You have withdrawed **{m:,}$**!")			
-												
+			await ctx.embed(description=f"{self.bot.emoji_dict['greenTick']} You have withdrawed **{m:,}$**!")
+	
+	@commands.command()
+	async def work(self, ctx):
+		data = await self.open_account(ctx.author)
+		w = data['wallet']
+		b = data['wallet']
+		bc = data['bankc']
+		int = random.randint(1, 3)
+		if int == 1:
+			await ctx.embed(description=f"Type `yo momma` backwards.")		
+			def check(m):
+				return m.author == ctx.author
+			msg = await self.bot.wait_for("message", timeout=10.0, check=check)
+			if msg.content.startswith("ammom oy"):
+				m = random.randint(1000, 2000)
+				await ctx.send(embed=discord.Embed(description=f"`ammom oy`, correct! im giving ya **${m}**!"))
+				await self.update_bal(ctx.author, m, b, bc+self.amt)
+			elif not msg.content.startswith('ammom oy'):
+				await ctx.embed(description=f"Yah, yo got it in**correct** so im giving you nothin'")
+		if int == 2:	
+			await ctx.embed(description=f"Type `lmao your a legend` backwards.")		
+			def check(m):
+				return m.author == ctx.author
+			msg = await self.bot.wait_for("message", timeout=10.0, check=check)
+			if msg.content.startswith("dnegel a ruoy oaml"):
+				m = random.randint(1000, 2000)
+				await ctx.send(embed=discord.Embed(description=f"`dnegel a ruoy oaml`, correct! im giving ya **${m}**!"))
+				await self.update_bal(ctx.author, m, b, bc+self.amt)
+			elif not msg.content.startswith("dnegel a ruoy oaml"):
+				await ctx.embed(description=f"Yah, yo got it in**correct** so im giving you nothin'")				
+				
+										
 def setup(bot):
 	bot.add_cog(Economy(bot))
