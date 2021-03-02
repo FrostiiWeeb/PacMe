@@ -30,17 +30,18 @@ class Fun(commands.Cog):
 		embed = discord.Embed(title="Typeracer!", description="You have `1 minute` to type:")
 		f = discord.File(obj, filename="type.png")
 		embed.set_image(url="attachment://type.png")
+		await ctx.send(file=f, embed=embed)
+		start = time.perf_counter()		
 		try:
 
 	    
 
 		      		
-		      		start = time.perf_counter()
-		      		type = await self.bot.wait_for("message", timeout=60.0)
-		      		await ctx.send(file=f, embed=embed)		      		
-		      		if type.content == text:
+		      		
+		      		typetr = await self.bot.wait_for("message", timeout=60.0)		      		
+		      		if typetr.content.startswith(f'{text}'):
 		      			end = time.perf_counter()
-		      			await ctx.embed(description=f"{type.author} won, and took: {round(start - end, 2)}.")
+		      			await ctx.send(embed=discord.Embed(description=f"{typetr.author} won, and took: {round(start - end, 2)}."))
 		      			
 		except asyncio.TimeoutError:
 			await ctx.embed(description="All of you lost lmao")

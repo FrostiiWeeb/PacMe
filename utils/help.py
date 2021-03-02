@@ -14,7 +14,7 @@ def syntax(command):
 
 	for key, value in command.params.items():
 		if key not in ("self", "ctx"):
-			params.append(f"[{key}]" if "NoneType" in str(value) else f"<{key}>")
+			params.append(command.usage or f"<{key}>")
 
 	params = " ".join(params)
 
@@ -31,7 +31,7 @@ class HelpMenu(ListPageSource):
 		len_data = len(self.entries)
 
 		embed = Embed(title="Help",
-					  description=f"Welcome to the {self.lmao.bot.user.name} help menu!")
+					  description=f"Welcome to the {self.lmao.bot.user.name} help menu!\n\n```\nNews\n```\n**Economy commands!**\n")
 		embed.set_thumbnail(url=self.lmao.guild.me.avatar_url)
 		embed.set_footer(text=f"{offset:,} - {min(len_data, offset+self.per_page-1):,} of {len_data:,} commands.")
 
@@ -44,7 +44,7 @@ class HelpMenu(ListPageSource):
 		fields = []
 
 		for entry in entries:
-			fields.append((entry.brief or entry.help or "No description", syntax(entry)))
+			fields.append((entry.brief or entry.help or "No description.", syntax(entry)))
 
 		return await self.write_page(menu, fields)
 

@@ -30,7 +30,7 @@ class Economy(commands.Cog):
 		
 		await self.bot.eco.upsert({"_id": user.id, "wallet": wallet, "bank": bank, "bankc": bankc})
 	
-	@commands.command(name="balance", aliases=["bal"], help="Get the balance of a user!")
+	@commands.command(name="balance", aliases=["bal"], help="Get the balance of a user!", usage="[user]")
 	async def balance(self, ctx, user : Union[discord.Member, int] = None):
 		
 		user = user or ctx.author
@@ -43,7 +43,7 @@ class Economy(commands.Cog):
 		
 		await ctx.embed(description=f"{self.bot.emoji_dict['greyTick']} Wallet: **{w:,}$**\n{self.bot.emoji_dict['greyTick']} Bank: **{b:,}/{bc:,}$**")
 	
-	@commands.command(name="deposit", aliases=["dep"])
+	@commands.command(name="deposit", aliases=["dep"], usage="<money>")
 	async def deposit(self, ctx, money : str):
 		data = await self.open_account(ctx.author)
 		
@@ -68,7 +68,7 @@ class Economy(commands.Cog):
 			await self.update_bal(ctx.author, w-m, b+m, bc+self.amt)	
 			await ctx.embed(description=f"{self.bot.emoji_dict['greenTick']} You have deposited **{m:,}$** into the bank!")
 			
-	@commands.command(name="withdraw", aliases=["with"])
+	@commands.command(name="withdraw", aliases=["with"], usage="<money>")
 	async def withd(self, ctx, money : str):
 		data = await self.open_account(ctx.author)
 		
@@ -88,7 +88,7 @@ class Economy(commands.Cog):
 			await self.update_bal(ctx.author, w+m, b-m, bc+self.amt)	
 			await ctx.embed(description=f"{self.bot.emoji_dict['greenTick']} You have withdrawed **{m:,}$**!")
 	
-	@commands.command()
+	@commands.command(help="Work for money!")
 	async def work(self, ctx):
 		data = await self.open_account(ctx.author)
 		w = data['wallet']
@@ -116,7 +116,18 @@ class Economy(commands.Cog):
 				await ctx.send(embed=discord.Embed(description=f"`dnegel a ruoy oaml`, correct! im giving ya **${m}**!"))
 				await self.update_bal(ctx.author, m, b, bc+self.amt)
 			elif not msg.content.startswith("dnegel a ruoy oaml"):
-				await ctx.embed(description=f"Yah, yo got it in**correct** so im giving you nothin'")				
+				await ctx.embed(description=f"Yah, yo got it in**correct** so im giving you nothin'")		
+		if int == 3:	
+			await ctx.embed(description=f"Type `dis bot cool.` backwards.")		
+			def check(m):
+				return m.author == ctx.author
+			msg = await self.bot.wait_for("message", timeout=10.0, check=check)
+			if msg.content.startswith(".looc tob sid"):
+				m = random.randint(1000, 2000)
+				await ctx.send(embed=discord.Embed(description=f"`.looc tob sid`, correct! im giving ya **${m}**!"))
+				await self.update_bal(ctx.author, m, b, bc+self.amt)
+			elif not msg.content.startswith(".looc tob sid"):
+				await ctx.embed(description=f"Yah, yo got it in**correct** so im giving you nothin'")						
 				
 										
 def setup(bot):

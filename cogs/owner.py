@@ -43,7 +43,7 @@ class Owner(commands.Cog, command_attrs={"hidden": True}):
     	return
    
 
-    @dev.command(hidden=True,help="Load or unload cogs.",aliases=["load", "unload"])
+    @dev.command(hidden=True,help="Load or unload cogs.",aliases=["load", "unload"], usage="<cog>")
     @commands.is_owner()
     async def manipulate(self, ctx, *, cog: str):
         manipulate_extension = getattr(
@@ -134,7 +134,7 @@ class Owner(commands.Cog, command_attrs={"hidden": True}):
                    	pass
                    	
         	
-    @dev.command(aliases=['rl'], help="Reload all/specific cog.", hidden=True)
+    @dev.command(aliases=['rl'], help="Reload all/specific cog.", hidden=True, usage="[cog]")
     @commands.is_owner()
     async def reload(self, ctx, cog=None):
         			if cog == None:

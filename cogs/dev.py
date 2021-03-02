@@ -42,7 +42,7 @@ class Developer(commands.Cog):
     async def on_ready(self):
         print(f"{self.__class__.__name__} Cog has been loaded\n-----")
 
-    @commands.command(brief="Get a screenshot of a website!",help="Take a screemshot of a website",aliases=["ss"])
+    @commands.command(brief="Get a screenshot of a website!",help="Take a screemshot of a website",aliases=["ss"], usage="<url>")
     @commands.is_owner()
     async def screenshot(self, ctx, url):
         api_url = self.screenshot_api.format(url=url)

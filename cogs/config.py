@@ -17,7 +17,7 @@ class Config(commands.Cog):
 		else:
 			await ctx.embed(description=f"No settings.")
 	
-	@commands.command()
+	@commands.command(usage="[prefix]")
 	@commands.has_permissions(administrator=True)
 	async def prefix(self, ctx, *, prefix="!*"):
 	       """

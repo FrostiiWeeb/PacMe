@@ -10,10 +10,12 @@ from discord.ext import commands
 from pathlib import Path
 import mystbin
 import motor.motor_asyncio
+import utils.errors
 try:
 	import psutil
 except:
 	pass
+import os
 
 # Local code
 
@@ -26,14 +28,19 @@ cwd = str(cwd)
 print(f"{cwd}\n-----")
 
 
-
+		
+os.environ["JISHAKU_NO_UNDERSCORE"] = "True"
+# also 
+os.environ["JISHAKU_NO_DM_TRACEBACK"] = "True" 
+os.environ["JISHAKU_HIDE"] = "True"
 async def get_prefix(bot, message):
+    prefix = ["", "pc,", "!*"]
     # If dm's
     if not message.guild:
         return commands.when_mentioned_or("!*")(bot, message)
     
     if message.author.id in bot.owner_ids:
-    	return ''
+    	return commands.when_mentioned_or(*prefix)(bot, message)
 
     try:
         data = await bot.config.find(message.guild.id)
@@ -81,6 +88,7 @@ class PacMe(BotBase):
 		self._underscore = True
 		self.mystbin = mystbin.Client()
 		self.emoji_dict = {"greyTick": "<:greyTick:596576672900186113>", "greenTick": "<:greenTick:596576670815879169>", "redTick": "<:redTick:596576672149667840>"}
+		self.custom_errors = utils.errors
 	
 		# Database
 		
@@ -100,4 +108,4 @@ class PacMe(BotBase):
     )
 	
 	async def get_context(self, message, *, cls=None):
-		return await super().get_context(message, cls=cls or PacContext)	
+		return await super().get_context(message, cls=cls or PacContext)
