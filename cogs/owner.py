@@ -169,6 +169,8 @@ class Owner(commands.Cog, command_attrs={"hidden": True}):
     	for ext in self.bot.coglist:
     		self.bot.reload_extension(ext)
     
+
+    
     @dev.command(hidden=True)
     async def upload(self, ctx):
     	out = subprocess.check_output("git push", shell=True)

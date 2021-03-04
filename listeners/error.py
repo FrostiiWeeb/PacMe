@@ -6,6 +6,7 @@ import humanize
 from discord.ext import commands
 from discord.ext.commands import command
 from discord.ext.commands import Cog
+from utils.errors import InvalidTime
 
 class ErrorEmbed(discord.Embed):
     def __init__(self, description, **kwargs):
@@ -34,7 +35,9 @@ class Error(Cog):
             commands.ExtensionNotFound: "The extension you provided is invalid.",
             commands.ExtensionNotLoaded: "The extension you provided has not been loaded.",
             commands.BadArgument: "Bad argument, cannot convert to int, str, discord member..",  
-            commands.CommandOnCooldown: None       
+            discord.HTTPException: None,
+            commands.CommandOnCooldown: None,
+            InvalidTime: "That's an invalid unit!"
         }
 
     @commands.Cog.listener()

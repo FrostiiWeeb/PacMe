@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-class Config(commands.Cog):
+class Config(commands.Cog, name="Config"):
 	def __init__(self, bot):
 		self.bot = bot
 		

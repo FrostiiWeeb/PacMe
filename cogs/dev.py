@@ -28,7 +28,7 @@ class MenuSource(menus.ListPageSource):
         embed = discord.Embed(description="\n".join(item for item in data))  # here we are creating an embed using the data as our description.
         return embed  # returning the embed
 
-class Developer(commands.Cog):
+class Developer(commands.Cog, name="Developer"):
     def __init__(self, bot):
         self.bot = bot
 

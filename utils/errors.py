@@ -13,3 +13,8 @@ class NotFound(ArgumentBaseError):
 	def __init__(self, _id, **kwargs):
 		super().__init__(message=f"{_id} was not found.", **kwargs)
 		print(f"{_id} was not found.", **kwargs)
+		
+class InvalidTime(ArgumentBaseError):
+	def __init__(self, _id, **kwargs):
+		super().__init__(message=f"{_id} is an invalid arg.", **kwargs)
+		print(f"{_id} was not found.", **kwargs)		

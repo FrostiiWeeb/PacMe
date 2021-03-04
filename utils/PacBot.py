@@ -13,9 +13,11 @@ import motor.motor_asyncio
 import utils.errors
 try:
 	import psutil
+	import aiosqlite
 except:
 	pass
 import os
+import asyncpg
 
 # Local code
 
@@ -97,8 +99,10 @@ class PacMe(BotBase):
 		self.config = Document(self.db, "config")
 		self.eco = Document(self.db, "economy")
 		self.w = Document(self.db, "welcome")
+				
 		
 	async def on_ready(self):
+		    
 		    print(
         "Logged in! \n"
         f"{'-' * 20}\n"

@@ -1,5 +1,6 @@
 from typing import Optional
 
+import discord
 from discord import Embed
 from discord.utils import get
 from discord.ext.menus import MenuPages, ListPageSource
@@ -20,20 +21,30 @@ def syntax(command):
 
 	return f"{cmd_and_aliases} {params}"
 
+def cog_cmds(ctx, cog):
+	cog = ctx.bot.get_cog(cog)
+	cmds = ", ".join(c.qualified_name or c.name for c in cog.get_commands())
+	return cmds
+	
+def cog_nms(ctx, cog):
+	cog = ctx.bot.get_cog(cog)
+	name = cog.qualified_name
+	return name
+
 class HelpMenu(ListPageSource):
 	def __init__(self, ctx, data):
 		self.lmao = ctx
 
-		super().__init__(data, per_page=3)
+		super().__init__(data, per_page=2)
 
 	async def write_page(self, menu, fields=[]):
-		offset = (menu.current_page*self.per_page) + 1
-		len_data = len(self.entries)
+		offset = menu.current_page * self.per_page
 
 		embed = Embed(title="Help",
-					  description=f"Welcome to the {self.lmao.bot.user.name} help menu!\n\n```\nNews\n```\n**Economy commands!**\n")
+					  description=f"```\nHelp Menu ({len(self.lmao.bot.commands)} commands.)\n```")
 		embed.set_thumbnail(url=self.lmao.guild.me.avatar_url)
-		embed.set_footer(text=f"{offset:,} - {min(len_data, offset+self.per_page-1):,} of {len_data:,} commands.")
+		embed.set_footer(text = f"Page {menu.current_page+1}/5"
+        if self.get_max_pages() > 0 else "Page 0/0")
 
 		for name, value in fields:
 			embed.add_field(name=name, value=value, inline=False)
@@ -44,22 +55,68 @@ class HelpMenu(ListPageSource):
 		fields = []
 
 		for entry in entries:
-			fields.append((entry.brief or entry.help or "No description.", syntax(entry)))
+
+			fields.append((cog_nms(self.lmao, entry), cog_cmds(self.lmao, entry)))
 
 		return await self.write_page(menu, fields)
+
+class GroupHelpSource(ListPageSource):
+    def __init__(self, group, data):
+        super().__init__(data, per_page=5)
+        self.group = group
+
+    async def format_page(self, menu, entries):
+        offset = menu.current_page * self.per_page
+        embed = discord.Embed(title = str(self.group),
+                              color=0x36393E)
+
+        for index, command in enumerate(entries, start=offset):
+            embed.add_field(name=command.qualified_name,
+                            value=(
+                                f"[{' | '.join([alias for alias in command.aliases])}] \n" if command.aliases else ""
+                                f"{command.help or 'None'}"
+                            ))
+
+        embed.set_footer(text=f"Page {menu.current_page + 1}/{self.get_max_pages()}" if
+            self.get_max_pages() > 0 else "Page 0/0")
+        return embed
+
+
+class CogHelpSource(ListPageSource):
+    def __init__(self, cog, data):
+        super().__init__(data, per_page=6)
+        self.cog = cog
+
+    async def format_page(self, menu, entries):
+        offset = menu.current_page * self.per_page
+        embed = discord.Embed(title=self.cog.qualified_name)
+
+        for index, command in enumerate(entries, start=offset):
+            embed.add_field(
+                name=f"**{str(command)}** [{' | '.join(alias for alias in command.aliases)}]" if command.aliases else f"**{str(command)}**",
+                value=(
+                    f"{command.help}" or "None"
+                ), inline=False
+            )
+
+        embed.set_footer(text = f"Page {menu.current_page+1}/{self.get_max_pages()}"
+        if self.get_max_pages() > 0 else "Page 0/0")
+
+        return embed
+        
+class CogHelpPages(MenuPages):
+    def __init__(self, source):
+        super().__init__(source, delete_message_after=True, timeout=60.0)
+       
 
 async def cmd_help(ctx, command):
 					  embed = Embed(title=f"Help",
 					  description=syntax(command) + "\n" + command.help or command.brief)
 					  await ctx.send(embed=embed)
-					 
-async def cog_help(ctx, cog):
-	embed = Embed(title=cog.qualified_name)
-	await ctx.send(embed=embed)	
 	
 class PaginatedHelp(commands.HelpCommand):
 	async def send_bot_help(self, mapping):
-		menu = MenuPages(source=HelpMenu(ctx=self.context, data=list(self.context.bot.commands)),
+		menu = MenuPages(source=HelpMenu(ctx=self.context, data=list(self.context.bot.cogs)),
 		delete_message_after=True,
 		timeout=60.0)
 		
@@ -67,3 +124,12 @@ class PaginatedHelp(commands.HelpCommand):
 	
 	async def send_command_help(self, command):
 		return await cmd_help(ctx=self.context, command=command)
+	
+	async def send_group_help(self, group: commands.Group):
+	       menu = CogHelpPages(source=GroupHelpSource(group, await self.filter_commands(group.commands)))
+	       await menu.start(self.context)
+	
+	async def send_cog_help(self, cog):
+	       menu = CogHelpPages(source=CogHelpSource(cog, await self.filter_commands(cog.get_commands())))
+	       await menu.start(self.context)
+		     	
