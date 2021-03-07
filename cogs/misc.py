@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-
+import platform
 
 class Misc(commands.Cog):
 	def __init__(self, bot):
@@ -26,7 +26,7 @@ class Misc(commands.Cog):
 		"""
 		Bot info.
 		"""
-		await ctx.embed(description=f"{await self.get_github_sha()}")
+		await ctx.embed(description=f"**Github:**\n{await self.get_github_sha()}\n**Info**:\n{self.bot.emoji_dict['dpy']} Library: [discord.py](https://pypi.org/project/discord.py)\n<:python:596577462335307777> Python version: {platform.python_version()}")
 		
 def setup(bot):
 	bot.add_cog(Misc(bot))

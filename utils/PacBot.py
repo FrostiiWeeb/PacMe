@@ -85,11 +85,12 @@ class PacMe(BotBase):
 		
 		self.connection_url = secret_file["mongo"]
 		self._token = secret_file["token"]
+		self.dagpi = secret_file["dagpi"]
 		self.maint = False
 		self.maintenence = False
 		self._underscore = True
 		self.mystbin = mystbin.Client()
-		self.emoji_dict = {"greyTick": "<:greyTick:596576672900186113>", "greenTick": "<:greenTick:596576670815879169>", "redTick": "<:redTick:596576672149667840>"}
+		self.emoji_dict = {"greyTick": "<:greyTick:596576672900186113>", "greenTick": "<:greenTick:596576670815879169>", "redTick": "<:redTick:596576672149667840>", "dpy": "<:dpy:596577034537402378>", "py": "<:python:286529073445076992>"}
 		self.custom_errors = utils.errors
 	
 		# Database

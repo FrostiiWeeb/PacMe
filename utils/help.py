@@ -4,6 +4,7 @@ import discord
 from discord import Embed
 from discord.utils import get
 from discord.ext.menus import MenuPages, ListPageSource
+from discord.ext import menus
 from discord.ext.commands import Cog
 from discord.ext import commands
 from discord.ext.commands import command
@@ -108,17 +109,51 @@ class CogHelpPages(MenuPages):
     def __init__(self, source):
         super().__init__(source, delete_message_after=True, timeout=60.0)
        
-
+def command_info(command : Union[str, commands.Command]):
+       info = ""
+       if command.brief:
+       	info += command.brief
+       if command.help:
+       	info += command.description
+       else:
+       	info += "None"
+       return info
+       
 async def cmd_help(ctx, command):
 					  embed = Embed(title=f"Help",
-					  description=syntax(command) + "\n" + command.help or command.brief)
+					  description=syntax(command) + "\n" + command_info(command))
 					  await ctx.send(embed=embed)
+					  
+class HelpPages(MenuPages):
+	def __init__(self, source):
+		super().__init__(source, delete_message_after=True, timeout=60.0)
+	
+	@menus.button('\U00002754', position=menus.Last(4))
+	async def show_bot_help(self, payload):
+		"""
+		Shows the bot help message
+		"""
+		embed = discord.Embed(title="Bot help", description="Hello! Welcome to the bot help page.")
+		embed.add_field(name="[arg]", value="Optional argument!", inline=False)
+		embed.add_field(name="<arg>", value="Required argument!", inline=False)
+		embed.add_field(name="What to do?", value="Use `@PacMe#9790 help [cmd]` for command help and `@PacMe#9790 help [module]` for module help.")
+		await self.message.edit(content=None, embed=embed)
+		
+	
+	@menus.button('\N{INFORMATION SOURCE}\ufe0f', position=menus.Last(3))
+	async def show_help(self, payload):
+	       """Shows this message"""
+	       embed = discord.Embed(title='Paginator help', description='Hello! Welcome to the help page.')
+	       messages = []
+	       for (emoji, button) in self.buttons.items():
+	       	messages.append(f'{emoji}: {button.action.__doc__}')
+	       	
+	       embed.add_field(name='What are these reactions for?', value='\n'.join(messages), inline=False)
+	       await self.message.edit(content=None, embed=embed)					
 	
 class PaginatedHelp(commands.HelpCommand):
 	async def send_bot_help(self, mapping):
-		menu = MenuPages(source=HelpMenu(ctx=self.context, data=list(self.context.bot.cogs)),
-		delete_message_after=True,
-		timeout=60.0)
+		menu = HelpPages(source=HelpMenu(ctx=self.context, data=list(self.context.bot.cogs)))
 		
 		await menu.start(self.context)
 	
