@@ -1,7 +1,6 @@
 from discord.ext import commands
 import discord
 from typing import Union
-from utils.PacBot import PacMe
 
 class Economy(commands.Cog):
 	def __init__(self, bot):
