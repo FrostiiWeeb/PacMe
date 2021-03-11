@@ -1,17 +1,13 @@
 # PacMe
-*A multi-purpose bot with Fun commands, Moderation, and more!*
-## About:
+------------
+An multi purpose bot written in Python.
 
-A bot, with small number of servers.   
-### Commands
- - `!*prefix` - change the bot prefix, it's per guild.  
- - `!*help` - Get the help menu for the bot.  
- - `!*tr` - Start a game of type racer, not a good anti-cheat.  
- - `!*info` - Get some big ol' info about the bot.  
+[Support Server](https://discord.gg/G2PekUfD59)
 
-Bot is not always online, be aware of that.  
-Bot is in work in progress.  
-Join the [support server](https://discord.gg/G2PekUfD59)!  
-Enjoy your time with `PacMe`.
+### Commands And Category's
 
--- FrostiiWeeb And Cyrus
+**Moderation**
+> `tempmute` | `ban` | `unban` | `giveaway`
+
+## Made by
+**Cyrus & FrostiiWeeb**

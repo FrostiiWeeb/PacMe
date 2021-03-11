@@ -23,7 +23,7 @@ import asyncpg
 
 import utils.json_loader
 from utils.CustomContext import PacContext
-from utils.mongo import Document
+from utils.mongo import Connection
 
 cwd = Path(__file__).parents[0]
 cwd = str(cwd)

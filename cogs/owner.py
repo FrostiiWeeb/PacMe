@@ -22,7 +22,7 @@ import json
 import subprocess
 from prettytable import PrettyTable
 from asyncpg import UniqueViolationError
-
+from utils.mongo import Connection
 
 class Owner(commands.Cog, command_attrs={"hidden": True}):
     def __init__(self, bot):
@@ -42,7 +42,7 @@ class Owner(commands.Cog, command_attrs={"hidden": True}):
     async def dev(self, ctx):
     	embed = discord.Embed(colour=0x2f3136, title="Hey.", description="**Dev commands:**\ndev load\ndev unload\ndev reload\ndev eval\ndev reboot\ndev m")
     	await ctx.send(embed=embed)
-    	return
+    	return    	
    
 
     @dev.command(hidden=True,help="Load or unload cogs.",aliases=["load", "unload"], usage="<cog>")
