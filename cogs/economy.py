@@ -17,8 +17,7 @@ class Economy(commands.Cog):
 			bank = data['bank']
 			
 			await ctx.embed(title=f"{user.name}'s balance", description=f"{self.bot.emoji_dict['greyTick']} Wallet: **${wallet}**\n{self.bot.emoji_dict['greyTick']} Bank: **${bank}**")
-		except Exception as e:
-			print(e)
+		except:
 			raise self.bot.custom_errors.NotInDB("Your ID")
 
 
