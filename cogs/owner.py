@@ -21,7 +21,7 @@ import aiohttp
 import json
 import subprocess
 from prettytable import PrettyTable
-from asyncpg import UniqueViolationError
+import inspect
 
 
 class Owner(commands.Cog, command_attrs={"hidden": True}):
