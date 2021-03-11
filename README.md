@@ -9,5 +9,14 @@ An multi purpose bot written in Python.
 **Moderation**
 > `tempmute` | `ban` | `unban` | `giveaway`
 
-## Made by
-**Cyrus & FrostiiWeeb**
+**Fun**
+> `cookie`
+
+**Misc**
+> `about` | `ping` | `suggest`
+
+**Config**
+> `prefix`
+
+**Economy**
+> `balance`
