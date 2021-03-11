@@ -3,17 +3,20 @@ from discord.ext import commands
 from datetime import datetime
 from pathlib import Path
 
+class Embed(discord.Embed):
+	def __init__(self, **kwargs):
+		super().__init__(**kwargs, colour=0x8936FF)
+
 class PacContext(commands.Context):
 		
 	async def embed(self, *args, **kwargs):
 	       """Sends an embed with the args given"""
 	       title = kwargs.get('title')
 	       description = kwargs.get('description')
-	       color = kwargs.get('color', 0x2F3136)
 	       timestamp = kwargs.get('timestamp', datetime.utcnow())
 	       url = kwargs.get("url", None)
-	       embed = discord.Embed(title=title, description=description, color=color, timestamp=timestamp, url=url).set_author(name=f"{self.author}", icon_url=str(self.author.avatar_url))
-	       await self.send(embed=embed)
+	       embed = Embed(**kwargs, tmestamp=timestamp).set_author(name=self.author, icon_url=self.author.avatar_url)
+	       return await self.send(embed=embed)
 
 	
 	async def send_reply(self, content=None, embed=None, mention_author=False):

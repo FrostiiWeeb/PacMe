@@ -6,7 +6,7 @@ import humanize
 from discord.ext import commands
 from discord.ext.commands import command
 from discord.ext.commands import Cog
-from utils.errors import InvalidTime
+from utils.errors import InvalidTime, NotInDB
 
 class ErrorEmbed(discord.Embed):
     def __init__(self, description, **kwargs):
@@ -37,7 +37,8 @@ class Error(Cog):
             commands.BadArgument: "Bad argument, cannot convert to int, str, discord member..",  
             discord.HTTPException: None,
             commands.CommandOnCooldown: None,
-            InvalidTime: "That's an invalid unit!"
+            InvalidTime: "That's an invalid unit!",
+            NotInDB: "That is not in the database."
         }
 
     @commands.Cog.listener()

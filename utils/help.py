@@ -1,4 +1,5 @@
 from typing import Optional
+from typing import Union
 
 import discord
 from discord import Embed
@@ -92,12 +93,11 @@ class CogHelpSource(ListPageSource):
         offset = menu.current_page * self.per_page
         embed = discord.Embed(title=self.cog.qualified_name)
 
-        for index, command in enumerate(entries, start=offset):
+        for command in entries:
             embed.add_field(
-                name=f"**{str(command)}** [{' | '.join(alias for alias in command.aliases)}]" if command.aliases else f"**{str(command)}**",
-                value=(
-                    f"{command.help}" or "None"
-                ), inline=False
+                name=f"{syntax(command)}",
+                value=f"{command.help}" or f"{command.brief}" or "None"
+                , inline=False
             )
 
         embed.set_footer(text = f"Page {menu.current_page+1}/{self.get_max_pages()}"

@@ -1,50 +1,53 @@
 import discord
-from PIL import Image, ImageDraw, ImageFont
 from discord.ext import commands
-import json
-import aiohttp
-import textwrap
-import time
-from wonderwords import RandomSentence
-from io import BytesIO
+import asyncio
+from utils.paginator import Paginator 
+
+
+
+class Pag(Paginator):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+  
 
 class Fun(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
-		self.bot.session = aiohttp.ClientSession()
 	
-	@discord.ext.commands.command(aliases=['tr'])
-	async def typeracer(self, ctx):
-		margin = offset = 40
-		text = RandomSentence()
-		text = text.sentence()
-		img = Image.open('/storage/emulated/0/PacMe/cogs/pure-black-background-f82588d3.jpg')
-		draw = ImageDraw.Draw(img)
-		font = ImageFont.truetype('/storage/emulated/0/PacMe/cogs/Minecraftia.ttf', 47)
-		textwrapped = textwrap.wrap(text, width=34)
-		draw.text((offset,margin), '\n'.join(textwrapped), (255,255,255), font=font)
-		obj = BytesIO()
-		img.save(obj, 'PNG')
-		obj.seek(0)
-		
-		embed = discord.Embed(title="Typeracer!", description="You have `1 minute` to type:")
-		f = discord.File(obj, filename="type.png")
-		embed.set_image(url="attachment://type.png")
-		await ctx.send(file=f, embed=embed)
-		start = time.perf_counter()		
+	def get_pages(self):
+	   	pages = []
+	   	# Generate a list of 5 embeds
+	   	for i in range(1, 6):
+	   	   embed = discord.Embed()
+	   	   embed.title = f"I'm the embed {i}!"
+	   	   pages.append(embed)
+	   	return pages
+
+	
+	@commands.command()
+	@commands.is_owner()
+	async def pag(self, ctx):
+		pag = Paginator(pages=self.get_pages())
+		return await pag.start(ctx)
+	
+	@commands.command(aliases=['c'])
+	async def cookie(self, ctx):
+		"""
+		Cookie command!
+		"""
+		def check(reaction, user):
+			return str(reaction.emoji) == "🍪" and user != ctx.me
 		try:
-
-	    
-
-		      		
-		      		
-		      		typetr = await self.bot.wait_for("message", timeout=60.0)		      		
-		      		if typetr.content.startswith(f'{text}'):
-		      			end = time.perf_counter()
-		      			await ctx.send(embed=discord.Embed(description=f"{typetr.author} won, and took: {round(start - end, 2)}."))
-		      			
+			start = time.perf_counter()
+			msg = await ctx.send(embed=discord.Embed(title="Get the :cookie:!", description="Go!"))
+			msg.add_reaction("🍪")
+			reaction, user = await self.bot.wait_for("reaction_add", timeout=20.0, check=check)
+			if str(reaction.emoji) == "🍪":
+				end = time.perf_counter()
+				embed = discord.Embed(title=user, description=f"This fool took {round(end-start *1000, 2)}")
+				await msg.edit(embed=embed)							
 		except asyncio.TimeoutError:
-			await ctx.embed(description="All of you lost lmao")
-		
+			return
+			
 def setup(bot):
-	bot.add_cog(Fun(bot))
+	bot.add_cog(Fun(bot))			

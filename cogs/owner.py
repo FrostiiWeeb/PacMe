@@ -20,6 +20,8 @@ import sys
 import aiohttp
 import json
 import subprocess
+from prettytable import PrettyTable
+from asyncpg import UniqueViolationError
 
 
 class Owner(commands.Cog, command_attrs={"hidden": True}):
@@ -163,6 +165,7 @@ class Owner(commands.Cog, command_attrs={"hidden": True}):
     		await ctx.reply(embed=embed)
     
     @dev.command(hidden=True)
+    @commands.is_owner()
     async def sync(self, ctx):
     	out = subprocess.check_output("git pull", shell=True)
     	await ctx.send(f"```\n{out.decode('utf-8')}\n```")		
@@ -172,9 +175,52 @@ class Owner(commands.Cog, command_attrs={"hidden": True}):
 
     
     @dev.command(hidden=True)
+    @commands.is_owner()
     async def upload(self, ctx):
     	out = subprocess.check_output("git push", shell=True)
-    	await ctx.send(f"```\n{out.decode('utf-8')}\n```")    	    	
+    	await ctx.send(f"```\n{out.decode('utf-8')}\n```")   
+    
+    @commands.group(invoke_without_command=True) 
+    @commands.is_owner()
+    async def blacklist(self, ctx):
+    	pass
+    
+    @blacklist.command()
+    @commands.is_owner()
+    async def add(self, ctx, user_id : int):
+    	user = user_id
+    	
+    	try:
+    		data = await self.bot.db.fetchrow("SELECT user_id FROM blacklist WHERE user_id = $1", user)
+    		if data['user_id'] == user.id:
+    			await ctx.embed(description="Already blacklisted thst user!")
+    	except:
+    		try:
+    			await self.bot.db.execute("INSERT INTO blacklist(user_id) VALUES ($1)", user)
+    			await ctx.embed(description=f"Blacklisted {await self.bot.fetch_user(user)}")
+    		except:
+    			await ctx.embed(description="That user is already blacklisted.")
+    
+    @blacklist.error
+    async def blacklist_error(self, ctx, error):
+    	if isisntace(error, UniqueViolationError):
+    		await ctx.embed(description="That user is already blacklisted.")
+    	
+    @dev.command()
+    @commands.is_owner()
+    async def sql(self, ctx, *, query):
+        """Execute SQL commands"""
+        res = await self.bot.db.fetch(query)
+        if len(res) == 0:
+            return await ctx.message.add_reaction('✅')
+        headers = list(res[0].keys())
+        table = PrettyTable()
+        table.field_names = headers
+        for record in res:
+            lst = list(record)
+            table.add_row(lst)
+        msg = table.get_string()
+        await ctx.send(f"```\n{msg}\n```")		    		    	
 
 def setup(bot):
     bot.add_cog(Owner(bot))

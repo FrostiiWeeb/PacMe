@@ -60,9 +60,23 @@ def clean_code(content):
         return "\n".join(content.split("\n")[1:])[:-3]
     else:
         return content
+	
+bot = PacMe()
 
 
-bot = PacMe(allowed_mentions=discord.AllowedMentions(users=True, roles=False, everyone=False, replied_user=False))
+async def fill_blacklist():
+        records = await bot.db.fetch("SELECT user_id FROM blacklist")
+        bot.blacklist = {r["user_id"] for r in records}
+
+async def run(bot):
+	db = await __import__('asyncpg').create_pool(user=bot.asyncpg['user'], password=bot.asyncpg['password'], database='Prefixes', host='127.0.0.1')
+	bot.db = db
+	await fill_blacklist()
+
+loop = asyncio.get_event_loop()
+loop.run_until_complete(run(bot=bot))
+
+
 
 @bot.group(invoke_without_command=True, name="eval", aliases=["exec"])
 @commands.is_owner()
@@ -105,15 +119,9 @@ async def _eval(ctx, *, code):
     except Exception as e:
         result = "".join(format_exception(e, e, e.__traceback__))
 
-    pager = Pag(
-        timeout=100,
-        entries=[result[i: i + 2000] for i in range(0, len(result), 2000)],
-        length=1,
-        prefix="```py\n",
-        suffix="```"
-    )
 
-    await pager.start(ctx)
+    
+
     
 @_eval.command(name="_")
 async def _under(ctx):
@@ -122,6 +130,13 @@ async def _under(ctx):
 		return await ctx.send("Eval underscore is now off.")
 	bot._underscore = True
 	return await ctx.send("Eval underscore is now on.")
+
+@bot.event
+async def on_message(message):
+
+    if message.author.id in bot.blacklist or getattr(message.guild, "id", None) in bot.blacklist:
+        return
+    await bot.process_commands(message)
 
 if __name__ == "__main__":
 	bot.run(bot._token)
