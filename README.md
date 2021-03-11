@@ -1,6 +1,6 @@
 # PacMe
 ------------
-An multi purpose bot written in Python.
+An multi purpose bot written in Python and discord.py.
 
 [Support Server](https://discord.gg/G2PekUfD59)
 
