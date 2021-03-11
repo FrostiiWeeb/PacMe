@@ -1,6 +1,6 @@
 from discord.ext import commands
 import discord
-from typing import Union
+from typing import Union, Optional
 
 class Economy(commands.Cog):
 	def __init__(self, bot):
