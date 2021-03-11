@@ -29,7 +29,10 @@ class Misc(commands.Cog):
 		"""
 		Bot info.
 		"""
-		await ctx.embed(description=f"**Github:**\n{await self.get_github_sha()}\n**Info**:\n{self.bot.emoji_dict['dpy']} Library: [discord.py](https://pypi.org/project/discord.py)\n<:python:596577462335307777> Python version: {platform.python_version()}")
+		async with self.bot.session.get('https://api.github.com/repos/FrostiiWeeb/PacMe/commits') as f:
+		          resp = await f.json()
+		          await ctx.embed(description="**Github:**" + "\n" + "\n".join(
+f"[`{commit['sha'][:6]}`]({commit['html_url']}) {commit['commit']['message']}" for commit in resp[:5]) + "\n" + f"**Info:**\n{self.bot.emoji_dict['dpy']} Library: [discord.py](https://pypi.org/project/discord.py)\n<:python:596577462335307777> Python Version: {__import__('platform').python_version()}")		
 		
 	@commands.command(aliases=['p'])
 	async def ping(self, ctx):
