@@ -168,9 +168,10 @@ class Owner(commands.Cog, command_attrs={"hidden": True}):
     @commands.is_owner()
     async def sync(self, ctx):
     	out = subprocess.check_output("git pull", shell=True)
-    	await ctx.send(f"```\n{out.decode('utf-8')}\n```")		
-    	for ext in self.bot.coglist:
-    		self.bot.reload_extension(ext)
+    	await ctx.send(f"```\n{out.decode('utf-8')}\n```")
+    	self.coglist = [f"cogs.{item[:-3]}" for item in os.listdir("/storage/emulated/0/PacMe/cogs") if item != "__pycache__"] + ["jishaku"] + ["listeners.error"]
+    	for c in self.coglist:
+    		self.bot.reload_extension(c)
     
 
     
