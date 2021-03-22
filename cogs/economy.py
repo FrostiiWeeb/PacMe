@@ -7,32 +7,29 @@ import datetime
 from discord.ext import commands
 from utils.PacBot import PacMe
 
-on_cooldown = {}  # A dictionary mapping user IDs to cooldown ends
+class cooldown:
+	def cooldown(self, seconds):
+	       async def cooldown_predicate(ctx):
 
-class cooldowns:
-    
-    def datetime_to_int(self, dt):
-    	return int(dt.strftime("%Y%m%d%H%M%S"))
-    
-    def cooldown(self, seconds):
-        async def predicate(context):
-            if (cooldown_end := await context.bot.db.fetchrow("SELECT cooldown FROM cool_down WHERE user_id = $1", context.author.id))  or int(cooldown_end) < datetime.datetime.now():
-                if context.valid and context.invoked_with in (*context.command.aliases, context.command.name):
-                	now = datetime.datetime.now()
-                	now = self.datetime_to_int(self, now)
-                	delta = datetime.timedelta(seconds=seconds)
-                	delta = delta.seconds
-                	                	             	
-                	await context.bot.db.execute("UPDATE cool_down SET cooldown = $1 WHERE user_id = $2 AND command = $3",now + delta, context.author.id, str(context.command))
-                return True
-            else:
-            	raise commands.CommandOnCooldown(commands.BucketType.user, (cooldown_end - self.datetime_to_int(datetime.datetime.now())))
-
-        return commands.check(predicate)
+	           if not (cd := await ctx.bot.db.fetchrow(f'SELECT * FROM cooldown WHERE id={ctx.author.id} AND command=$1', str(ctx.command))):
+	           	await ctx.bot.db.execute(f'INSERT INTO cooldown VALUES ({ctx.author.id}, $1, {int(time.time()+seconds)})', str(ctx.command))
+	           	return True
+	           else:
+	           	ends_at = cd[0]['ends_at'] or 0
+	           	if ends_at > time.time():
+	           		raise commands.CommandOnCooldown(f'Command {ctx.command} is on cooldown', retry_after=ends_at - time.time())
+	           	else:
+	           	   await ctx.bot.db.execute(f'UPDATE cooldown SET ends_at={int(time.time()+seconds)} WHERE id={ctx.author.id} AND command=$1', str(ctx.command))
+	           	   return True
+	           return commands.check(cooldown_predicate)	
 
 class Economy(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
+		
+		
+	
+	
 		
 	@commands.command(aliases=['bal'])
 	async def balance(self, ctx, user : Union[discord.Member, int] = None):
@@ -49,7 +46,7 @@ class Economy(commands.Cog):
 			raise self.bot.custom_errors.NotInDB("Your ID")
 	
 	@commands.command()
-	@cooldowns.cooldown(cooldowns, 20)
+	@cooldown.cooldown(cooldown, 20)
 	async def beg(self, ctx):
 		money = random.randint(1, 201)
 		try:

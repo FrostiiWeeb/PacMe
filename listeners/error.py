@@ -40,6 +40,23 @@ class Error(Cog):
             InvalidTime: "That's an invalid unit!",
             NotInDB: "That is not in the database."
         }
+       
+    @commands.Cog.listener('on_command_completion')
+    async def command_status(self, ctx):
+    	try:
+    		if ctx.author.id in self.bot.owner_ids:
+    			return
+    		cmd = await self.bot.db.fetchrow("SELECT * FROM cmdstats WHERE command = $1", ctx.command.qualified_name)
+    		name = cmd['command']
+    		usage = cmd['usage']
+    		nusage = usage + 1
+    		new_usage = nusage
+    		await self.bot.db.execute("UPDATE cmdstats SET usage = $1 WHERE command = $2", new_usage, ctx.command.qualified_name)
+    	except:
+    		try:
+    			await self.bot.db.execute("INSERT INTO cmdstats VALUES ($1, $2)", ctx.command.qualified_name, 1)
+    		except Exception as e:
+    			print(e)
 
     @commands.Cog.listener()
     async def on_ready(self):

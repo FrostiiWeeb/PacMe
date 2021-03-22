@@ -3,9 +3,13 @@ from discord.ext import commands
 from datetime import datetime
 from pathlib import Path
 
+# Base Embed.
+
 class Embed(discord.Embed):
 	def __init__(self, **kwargs):
 		super().__init__(**kwargs, colour=0x8936FF)
+		
+# Making The custom context
 
 class PacContext(commands.Context):
 		
@@ -26,6 +30,9 @@ class PacContext(commands.Context):
 		await self.reply(content, mention_author=False)
 	
 	async def confirm(self, confirm_msg="Default msg."):
+		"""
+		An object for confirmation.
+		"""
 		embed = discord.Embed(title="Are you sure?", description=confirm_msg, color=0x2F3136)
 		m = await self.send(embed=embed)
 		await m.add_reaction(self.bot.emoji_dict["greenTick"])

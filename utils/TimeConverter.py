@@ -22,19 +22,9 @@ class TimeConverter(commands.Converter):
     def convert(self, time):
     	pos = ['s', 'm', 'h', 'd', 'w', 'y']
     	
-    	time_dict = {'s': 1, 'm': 60, 'h': 3600, 'd': 86400, "w": 604800, 'y': 31557600}
+    	time_dict = {'s': 0, 'm': 60, 'h': 3600, 'd': 8600, 'w': 604800, 'y': 31557600}
     	
-    	unit = time[-1]
-    	
-    	if unit not in pos:
-    		raise InvalidTime(time)    		
-    		return -1
-    	try:
-    		val = int(time[:-1])
-    	except:
-    		return -2
-    	
-    	return val * time_dict[unit]
-
-
-		
+    	if str(time).endswith not in pos:
+    		return commands.BadArgument("Cannot convert `{}` as it is not valid.")
+    	result = pos[str(time.endswith)] * time_dict[str(pos.endswith)]
+    	return int(result)

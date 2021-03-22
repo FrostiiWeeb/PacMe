@@ -1,9 +1,13 @@
 from discord.ext import commands
-		
+
+# Base Error	
+						
 class ArgumentBaseError(commands.UserInputError):
     def __init__(self, converter=None, **kwargs):
         super().__init__(**kwargs)
         self.converter = converter  	
+        
+# Making the custom errors.
 
 class MustMember(ArgumentBaseError):
     def __init__(self, _id, **kwargs):

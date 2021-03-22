@@ -1,0 +1,12 @@
+{
+    "apps": [{
+        "name": "bot",
+        "script": "bot.py",
+        "args": ["-c", "my_config.prod.json"],
+        "instances": "1",
+        "wait_ready": true,
+        "autorestart": true,
+        "max_restarts": 1000,
+        "interpreter" : "python",
+    }]
+}

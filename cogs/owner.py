@@ -36,18 +36,34 @@ class Owner(commands.Cog, command_attrs={"hidden": True}):
     @commands.Cog.listener()
     async def on_ready(self):
         print(f"{self.__class__.__name__} Cog has been loaded\n-----")
+
         
     @commands.group(hidden=True,case_insensitive=True, help="Dev commands.",aliases=['d'],invoke_without_command=True, brief="Dev commands")
     @commands.is_owner()
     async def dev(self, ctx):
     	embed = discord.Embed(colour=0x2f3136, title="Hey.", description="**Dev commands:**\ndev load\ndev unload\ndev reload\ndev eval\ndev reboot\ndev m")
     	await ctx.send(embed=embed)
-    	return    	
+    	return
+        	
    
 
     @dev.command(hidden=True,help="Load or unload cogs.",aliases=["load", "unload"], usage="<cog>")
     @commands.is_owner()
-    async def manipulate(self, ctx, *, cog: str):
+    async def manipulate(self, ctx, cog: str = None):
+        if str(cog) == None:
+        	if ctx.invoked_with == "reload":
+        		embed = discord.Embed()
+        		for c in os.listdir('.'):
+        			try:
+        				if c.endswith(".ttf"):
+        					pass
+        				if c.endswith(".jpg"):
+        					pass
+        				self.bot.reload_extension(f"{c[:-3]}")
+        				embed.add_field(name=str(c), value=self.bot.emoji_dict["greenTick"])
+        			except Exception as e:
+        				embed.add_field(name=str(c), value=self.bot.emoji_dict["redTick"])                
+        
         manipulate_extension = getattr(
             self.bot,
             f"{ctx.invoked_with}_extension",
@@ -55,7 +71,8 @@ class Owner(commands.Cog, command_attrs={"hidden": True}):
         )
 
         if ctx.invoked_with == "manipulate" or manipulate_extension is None:
-            return
+            return				
+        			
         manipulate_extension(f"{cog}")
         embed = Embed(description=f"{self.bot.emoji_dict['greenTick']} {ctx.invoked_with}ed {cog}", colour=0x2f3136)
         embed.set_author(name=ctx.author, icon_url=ctx.author.avatar_url)
@@ -119,6 +136,7 @@ class Owner(commands.Cog, command_attrs={"hidden": True}):
         	    return False
         	
         return True
+     
  
 
     @dev.command(help="Turn on or off maintenance mode.",aliases=['maintenance'], hidden=True)
@@ -135,19 +153,7 @@ class Owner(commands.Cog, command_attrs={"hidden": True}):
             else:
                    	pass
                    	
-        	
-    @dev.command(aliases=['rl'], help="Reload all/specific cog.", hidden=True, usage="[cog]")
-    @commands.is_owner()
-    async def reload(self, ctx, cog=None):
-        			if cog == None:
-        				await ctx.embed(description="Reloaded all modules!")
-        				for file in os.listdir('./cogs'):
-        					if file.endswith('.py'):
-        						self.bot.reload_extension(f'cogs.{file[:-3]}')
-        						        						
-        			else:
-        			    self.bot.reload_extension(f'{cog}')
-        			    await ctx.embed(description=f"Reloaded {cog}!")
+  
      
     @dev.command(name="raw")
     async def rawmsg(self, ctx, msg_id):
@@ -157,6 +163,7 @@ class Owner(commands.Cog, command_attrs={"hidden": True}):
      	    await ctx.embed(description=f"Content too long: {await self.bot.mystbin.post(msg)}")
      	    return
      	await ctx.embed(description=f"```json\n{msg}\n```")
+     
     
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
@@ -204,6 +211,18 @@ class Owner(commands.Cog, command_attrs={"hidden": True}):
     async def blacklist_error(self, ctx, error):
     	if isisntace(error, UniqueViolationError):
     		await ctx.embed(description="That user is already blacklisted.")
+    
+    @commands.group(invoke_without_command=True)
+    async def emoji(self, ctx):
+    	pass
+    
+    @emoji.command(name="add")
+    async def add(self, ctx, id : int, name: str):
+    	await self.bot.db.execute(
+    	"INSERT INTO emojis(id, name) VALUES ($1, $2)", id, name
+    	)
+    	await ctx.send("Added `{}` as an emoji.".format(name))
+    	self.bot._emojis[name] = f"<:{name}:{id}>"
     	
     @dev.command()
     @commands.is_owner()

@@ -1,8 +1,8 @@
 import discord
 from discord.ext import commands
 import asyncio
-from utils.paginator import Paginator 
-
+from discord.ext.paginator import Paginator 
+import time
 
 
 class Pag(Paginator):
@@ -13,21 +13,17 @@ class Pag(Paginator):
 class Fun(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
-	
-	def get_pages(self):
-	   	pages = []
-	   	# Generate a list of 5 embeds
-	   	for i in range(1, 6):
-	   	   embed = discord.Embed()
-	   	   embed.title = f"I'm the embed {i}!"
-	   	   pages.append(embed)
-	   	return pages
 
 	
 	@commands.command()
 	@commands.is_owner()
-	async def pag(self, ctx):
-		pag = Paginator(pages=self.get_pages())
+	async def cmdstats(self, ctx):
+		embed1 = discord.Embed()
+		for db in await self.bot.db.fetch("SELECT * FROM cmdstats"):
+			name = db['command']
+			usage = db['usage']			
+			embed1.add_field(name=name, value=usage, inline=False)
+		pag = Paginator(entries=[embed1])
 		return await pag.start(ctx)
 	
 	@commands.command(aliases=['c'])
@@ -40,11 +36,11 @@ class Fun(commands.Cog):
 		try:
 			start = time.perf_counter()
 			msg = await ctx.send(embed=discord.Embed(title="Get the :cookie:!", description="Go!"))
-			msg.add_reaction("🍪")
+			await msg.add_reaction("🍪")
 			reaction, user = await self.bot.wait_for("reaction_add", timeout=20.0, check=check)
 			if str(reaction.emoji) == "🍪":
 				end = time.perf_counter()
-				embed = discord.Embed(title=user, description=f"This fool took {round(end-start *1000, 2)}")
+				embed = discord.Embed(title=user.name, description=f"This fool took {round(end-start, 2)} seconds.")
 				await msg.edit(embed=embed)							
 		except asyncio.TimeoutError:
 			return

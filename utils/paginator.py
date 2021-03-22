@@ -1,96 +1,111 @@
 import discord
 from discord.ext import commands
-import asyncio
-from typing import List, Union, Optional
+from typing import Union, List, Optional
 from contextlib import suppress
 
 class Paginator:
-	def __init__(self, pages: Optional[Union[List[discord.Embed], discord.Embed]] = None,timeout: float = 90.0):
-		self.pages = pages
-		self.current = 0
-		self.previous = 0
-		self.end = 0
-		self.timeout = timeout		
-		
-		self.ctx = None
-		self.bot = None
-		self.msg = None
-		
-		self.reactions = {
-            "⏮️": 0.0,
-            "◀️": -1,
-            "⏹️": "stop",
-            "▶️": +1,
-            "⏭️": None,
-        }		
+	"""
+	An object for pagination for discord.py.
 	
-	async def stop(self):
-		self.pages = []
+	_pages: List[discord.Embed] : `The pages of the paginator.`
+	index : int : `The index page of the paginator.`
+	current : int : The current page of the paginator.
+	timeout : float = 90.0 : `The timeout for the paginator.`
+	ctx : NoneType : `The context for the paginator.`
+	message : NoneType : `The message for the paginator.`
+	compact : bool : `If the paginator's pages are less then 3 then compact will take over.
+	_buttons : dict : The reactions for the paginator.`
 	
-	async def wait_for_reaction(self, ctx, wait_for):
-		def check(reaction, user):
-			return user == self.ctx.author
+	"""	
+	__slots__ = ('_pages', 'index', 'current', 'timeout', 'ctx', 'message', 'compact', '_buttons',)
+	
+	
+	def __init__(self, *, entries: Union[List[discord.Embed], discord.Embed] = None, timeout: float = 90.0,):
 			
-		try:
+		self._pages = entries 
+		self.index = 0
+		self.current = 1
+		self.timeout = timeout
+		self.ctx = None
+		self.compact : bool = False
+		self.message = None
+		if len(self._pages) == 2:
+			self.compact = True
 		
-			reaction, user = await self.ctx.bot.wait_for("reaction_add", timeout=self.timeout, check=check)
-			if str(reaction.emoji) == "⏹️":
-				await self.msg.delete()
-			if str(reaction.emoji) == "▶️":
-				try:					
-					await self.msg.edit(embed=self.pages[self.current-1])
-					self.current = len(self.pages)-len(self.pages)-1
-					await wait_for(ctx)
-				except Exception as r:
-					raise RuntimeError(r)	
-			if str(reaction.emoji) == "◀️":
-				try:
-					await self.msg.edit(embed=self.pages[self.current+1])		
-				except Exception as r:
-					raise RuntimeError(r)
-		except asyncio.TimeoutError:
-								pass		
+		self._buttons = {
+		"⏪": "stop",
+		"◀️": "plus",		
+		"▶️": "last",
+		"⏩": "first",
+		"⏹️": "minus",
+		"🔢": "input"
+		}
+		
+		if self.compact is True:
+			keys = ('⏩', '⏪', '🔢')
+			for key in keys:
+				del self._buttons[key]
+								
+				
+	async def go_to_input(self):
+		"""
+		An function for the input.
+		"""
+		try:
+			def check(m):
+				return m.author == self.ctx.author
+			await self.ctx.send("What page do you want to go to?")
+			msg = await self.ctx.bot.wait_for("message", timeout=20.0, check=check)
+			if int(msg.content) > len(self._pages):
+				pass
+			elif int(msg.content) == len(self._pages):
+				self.current = len(self._pages)
+				await self.go_to_page(self._pages[self.current-1])
+			else:
+				self.current = int(msg.content)
+				await self.message.edit(embed=self._pages[self.current-1])
+		except Exception as e:
+			print(e)	
 	
 	async def start(self, ctx):
-		self.ctx = ctx
-		
-		if len(self.pages) == 0:
-			raise RuntimeError("Can\'t paginate an empty list.")
-		self.msg = await ctx.send(embed=self.pages[self.current])
-		
-		
-		
-		self.reacts = [
-		"⏮️",
-		"◀️",
-		"⏹️",
-		"▶️"
-		"⏭"
-		]
-		
-		for r in self.reactions:
-			await self.msg.add_reaction(r)		
-		
-		def check(reaction, user):
-			return user == self.ctx.author
-			
-		try:
-		
-			reaction, user = await self.ctx.bot.wait_for("reaction_add", timeout=self.timeout, check=check)
-			if str(reaction.emoji) == "⏹️":
-				await self.msg.delete()
-			if str(reaction.emoji) == "▶️":
-				try:					
-					await self.msg.edit(embed=self.pages[self.current-1])
-					self.current = len(self.pages)-len(self.pages)-1
-					await self.wait_for_reaction(ctx, self.wait_for_reaction)
-				except Exception as r:
-					raise RuntimeError(r)	
-			if str(reaction.emoji) == "◀️":
-				try:
-					await self.msg.edit(embed=self.pages[self.current+1])		
-				except Exception as r:
-					raise RuntimeError(r)
-		except asyncio.TimeoutError:
-								pass
-								
+		    """
+		    Start the paginator.
+		    """
+		    self.ctx = ctx
+		    
+		    await self._paginate()			    		    		    
+	async def _paginate(self):
+		    """
+		    Start the pagination session.
+		    """
+		    with suppress(discord.HTTPException, discord.Forbidden, IndexError):
+		    	self.message = await self.ctx.send(embed=self._pages[0])
+		    for b in self._buttons:
+		    	await self.message.add_reaction(b)
+		    def check(reaction, user):
+		    	return str(reaction.emoji) in self._buttons and user == self.ctx.author
+		    while True:
+		    	try:
+		    		reaction, user = await self.ctx.bot.wait_for("reaction_add", check=check, timeout=self.timeout)
+		    		if str(reaction.emoji) == "⏹️":
+		    			await self.message.delete()
+		    			break
+		    		if str(reaction.emoji) == "▶️" and self.current != len(self._pages):
+		    			self.current += 1
+		    			await self.message.edit(embed=self._pages[self.current-1])		    			
+		    		if str(reaction.emoji) == "◀️" and self.current > 1:
+		    			self.current -= 1
+		    			await self.message.edit(embed=self._pages[self.current-1])		    			
+		    		if str(reaction.emoji) == "⏩":
+		    			self.current = len(self._pages)
+		    			await self.message.edit(embed=self._pages[self.current-1])		    			
+		    		if str(reaction.emoji) == "⏪":
+		    			self.current = 1
+		    			await self.message.edit(embed=self._pages[self.current-1])
+		    		if str(reaction.emoji) == "🔢":
+		    			await self.go_to_input()
+		    						    				
+		    	except Exception as e:
+		    		with suppress(discord.Forbidden, discord.HTTPException):
+		    			for b in self._buttons:
+		    				await self.message.remove_reaction(b, self.ctx.bot.user)		    		

@@ -2,6 +2,9 @@ import discord
 from discord.ext import commands
 import platform
 import time
+from datetime import datetime
+from typing import Union
+import humanize
 
 class Misc(commands.Cog):
 	def __init__(self, bot):
@@ -32,7 +35,8 @@ class Misc(commands.Cog):
 		async with self.bot.session.get('https://api.github.com/repos/FrostiiWeeb/PacMe/commits') as f:
 		          resp = await f.json()
 		          await ctx.embed(description="**Github:**" + "\n" + "\n".join(
-f"[`{commit['sha'][:6]}`]({commit['html_url']}) {commit['commit']['message']}" for commit in resp[:5]) + "\n" + f"**Info:**\n{self.bot.emoji_dict['dpy']} Library: [discord.py](https://pypi.org/project/discord.py)\n<:python:596577462335307777> Python Version: {__import__('platform').python_version()}")		
+f"[`{commit['sha'][:6]}`]({commit['html_url']}) {commit['commit']['message']}" for commit in resp[:5]) + "\n" + f"**Info:**\n{self.bot.emoji_dict['dpy']} Library: [discord.py](https://pypi.org/project/discord.py)\n<:python:596577462335307777> Python Version: {__import__('platform').python_version()}\n**Links:**\n[Support Server](https://discord.gg/vMsp7w94yd)")
+		
 		
 	@commands.command(aliases=['p'])
 	async def ping(self, ctx):
@@ -40,7 +44,21 @@ f"[`{commit['sha'][:6]}`]({commit['html_url']}) {commit['commit']['message']}" f
 		await self.bot.db.execute("SELECT 1 FROM prefixes")
 		dbe = time.perf_counter()
 		db = round((dbe - dbs) * 1000, 2)
-		await ctx.embed(description=f"<:pg:818078755536502814> | **Database:**\n{db}ms")
+		s = time.perf_counter()
+		async with ctx.typing():
+			e = time.perf_counter()
+			typing = round((e - s) * 1000, 2)
+			return await ctx.embed(description=f"<:PacMe:819888802537406464> | **Websocket:**\n{round(self.bot.latency * 1000, 2)}ms\n<a:typing:597589448607399949> | **Typing:**\n{typing}ms\n<:pg:818078755536502814> | **Database:**\n{db}ms")
+	
+	@commands.command(aliases=['ui'])
+	async def userinfo(self, ctx, *, member : Union[discord.Member, int] = None):
+		target = member or ctx.author
+		yes = self.bot.emoji_dict['greenTick']
+		no = self.bot.emoji_dict['redTick']
+		
+		embed = discord.Embed(color=self.bot.embed_color).set_author(name=target, icon_url=target.avatar_url)
+		embed.add_field(name="**Is literally a bot owner**\nGeneral:" if target.id in self.bot.owner_ids else "General:", value=f"Created at: **{humanize.naturaltime(datetime.utcnow() - target.created_at)}**")
+		await ctx.send(embed=embed)
 	
 	@commands.command()
 	async def suggest(self, ctx):

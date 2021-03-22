@@ -6,7 +6,7 @@ import logging
 
 import discord
 from discord.ext.commands import Bot 
-from discord.ext import commands
+from discord.ext import commands, ipc
 from pathlib import Path
 import mystbin
 import motor.motor_asyncio
@@ -24,11 +24,13 @@ import asyncpg
 import utils.json_loader
 from utils.CustomContext import PacContext
 from utils.mongo import Connection
+import datetime
 
 cwd = Path(__file__).parents[0]
 cwd = str(cwd)
 print(f"{cwd}\n-----")
 
+# Intialize the options for 'jishaku'.
 
 		
 os.environ["JISHAKU_NO_UNDERSCORE"] = "True"
@@ -36,12 +38,16 @@ os.environ["JISHAKU_NO_UNDERSCORE"] = "True"
 os.environ["JISHAKU_NO_DM_TRACEBACK"] = "True" 
 os.environ["JISHAKU_HIDE"] = "True"
 
+# Get prefix func.
+
 async def get_prefix(bot, message):
 	try:
-		prefix = await bot.db.fetch("SELECT prefix FROM prefixes WHERE guild_id = $1", message.guild.id)
+		prefix = await bot.db.fetch("SELECT prefix FROM prefixes WHERE guild_id = $1", message.guild.id) # Select the guild id from the database.
 		return commands.when_mentioned_or(f"{prefix['prefix']}")(bot, message)			
 	except Exception as e:
 		return '!*'
+
+# The bot base.
 
 class BotBase(Bot):
 	def __init__(self, *args, **kwargs):
@@ -71,6 +77,7 @@ class PacMe(BotBase):
 		self.cache = {}
 		
 		# Config
+		self.ipc = ipc.Server(self, secret_key="ConfirmItsMe")
 		self._token = secret_file["token"]
 		self.dagpi = secret_file["dagpi"]
 		self.asyncpg = secret_file['postgres']
@@ -81,7 +88,8 @@ class PacMe(BotBase):
 		self.maintenence = False
 		self._underscore = True
 		self.mystbin = mystbin.Client()
-		self.emoji_dict = {"greyTick": "<:greyTick:596576672900186113>", "greenTick": "<:greenTick:596576670815879169>", "redTick": "<:redTick:596576672149667840>", "dpy": "<:dpy:596577034537402378>", "py": "<:python:286529073445076992>"}
+		self.start_time = datetime.datetime.utcnow()
+		self.emoji_dict = {"greyTick": "<:greyTick:596576672900186113>", "greenTick": "<:greenTick:820316551340490752>", "redTick": "<:redTick:820319748561829949>", "dpy": "<:dpy:596577034537402378>", "py": "<:python:286529073445076992>"}
 		self.custom_errors = utils.errors
 				
 		
@@ -94,6 +102,8 @@ class PacMe(BotBase):
         f"Bot ID: {self.user.id} \n"
         f"{'-' * 20}"
     )
+    
+    # Make our bot use the custom context `(utils.CustomContext)`
 	
 	async def get_context(self, message, *, cls=None):
 		return await super().get_context(message, cls=cls or PacContext)
