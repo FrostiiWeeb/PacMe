@@ -23,7 +23,6 @@ import asyncpg
 
 import utils.json_loader
 from utils.CustomContext import PacContext
-from utils.mongo import Connection
 import datetime
 
 cwd = Path(__file__).parents[0]
@@ -41,6 +40,8 @@ os.environ["JISHAKU_HIDE"] = "True"
 # Get prefix func.
 
 async def get_prefix(bot, message):
+	if not message.guild:
+		return '!*'
 	try:
 		prefix = await bot.db.fetch("SELECT prefix FROM prefixes WHERE guild_id = $1", message.guild.id) # Select the guild id from the database.
 		return commands.when_mentioned_or(f"{prefix['prefix']}")(bot, message)			

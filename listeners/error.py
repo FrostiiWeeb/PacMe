@@ -23,8 +23,9 @@ class Error(Cog):
         self.bot.errors = {
             commands.MissingRequiredArgument: "Missing required argument(s): "
                                               "{error.param}",
-            commands.MissingPermissions: f"Missing required permission(s).",                                            
-            commands.BotMissingPermissions: "Im missing permission(s).",
+            commands.MissingPermissions: "Missing required permission(s): "
+                                              "{error.missing_perms}",                                            
+            commands.BotMissingPermissions: "Im missing permission(s): " "{error.missing_perms}",
             commands.NotOwner: "You don't own this bot.",
             commands.NSFWChannelRequired: "{ctx.command} is required to be "
                                           "invoked in a NSFW channel.",
@@ -37,8 +38,8 @@ class Error(Cog):
             commands.BadArgument: "Bad argument, cannot convert to int, str, discord member..",  
             discord.HTTPException: None,
             commands.CommandOnCooldown: None,
-            InvalidTime: "That's an invalid unit!",
-            NotInDB: "That is not in the database."
+            InvalidTime: "{error}",
+            NotInDB: "{error}"
         }
        
     @commands.Cog.listener('on_command_completion')

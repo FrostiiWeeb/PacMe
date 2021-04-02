@@ -136,6 +136,33 @@ class Moderation(discord.ext.commands.Cog):
 		users.pop(users.index(self.bot.user))
 		winner = random.choice(users)
 		await channel.send(embed=discord.Embed(description=f"Congratulations! {winner.mention} won {prize}!"))
+	
+	@commands.command()
+	@commands.has_permissions(kick_members=True)
+	async def warn(
+	self, ctx, *, target : Union[discord.Member, int], reason : str = "cuz you were warned ||yea boi||"
+	):
+		async with self.bot.db.acquire() as c:
+			import string
+			import random
+			ret = random.choices(string.digits, k=6)
+			res = "".join(ret)
+			await c.execute("INSERT INTO warns(user_id, warn_id, reason) VALUES ($1, $2, $3)", target.id, res, reason)
+		await self.do_action(ctx, "Warn", ctx.author, target.id, reason)
+	
+	@commands.command()
+	@commands.has_permissions(kick_members=True)
+	async def warns(self, ctx, *, target : Union[discord.Member, int]):
+		async with self.bot.db.acquire() as c:
+			try:
+				
+				embed = discord.Embed(colour=self.bot.embed_color)
+				for m in ["r"]:
+					data = await c.fetchrow("SELECT * FROM warns WHERE user_id = $1", target.id)
+					embed.add_field(name=f"Warn ID: {data['warn_id']}", value=f"```\nMember: {str(target)}\nReason: {data['reason']}```")
+				await ctx.send(embed=embed)
+			except:
+				raise self.bot.custom_errors.NotInDB(f"{target}")	
 
 def setup(bot):
 	bot.add_cog(Moderation(bot))

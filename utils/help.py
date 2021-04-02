@@ -25,7 +25,7 @@ def syntax(command):
 
 def cog_cmds(ctx, cog):
 	cog = ctx.bot.get_cog(cog)
-	cmds = ", ".join(c.qualified_name or c.name for c in cog.get_commands())
+	cmds = " ".join(f"`{c.qualified_name}`" or f"`{c.name}` "for c in cog.get_commands())
 	return cmds
 	
 def cog_nms(ctx, cog):
@@ -43,9 +43,9 @@ class HelpMenu(ListPageSource):
 		offset = menu.current_page * self.per_page
 
 		embed = Embed(title="Help",
-					  description=f"```\nHelp Menu ({len(self.lmao.bot.commands)} commands.)\n```")
-		embed.set_thumbnail(url=self.lmao.guild.me.avatar_url)
-		embed.set_footer(text = f"Page {menu.current_page+1}/5"
+					  description=f"Use `{self.lmao.prefix}help [cmd]` or `{self.lmao.prefix}help [module]` for more help.")
+		embed.set_thumbnail(url=self.lmao.bot.user.avatar_url)
+		embed.set_footer(text = f"Page {menu.current_page+1}/4"
         if self.get_max_pages() > 0 else "Page 0/0")
 
 		for name, value in fields:
@@ -58,7 +58,7 @@ class HelpMenu(ListPageSource):
 
 		for entry in entries:
 
-			fields.append((cog_nms(self.lmao, entry), cog_cmds(self.lmao, entry)))
+			fields.append((cog_nms(self.lmao, entry), f"{cog_cmds(self.lmao, entry)}"))
 
 		return await self.write_page(menu, fields)
 
@@ -136,7 +136,7 @@ class HelpPages(MenuPages):
 		embed = discord.Embed(title="Bot help", description="Hello! Welcome to the bot help page.")
 		embed.add_field(name="[arg]", value="Optional argument!", inline=False)
 		embed.add_field(name="<arg>", value="Required argument!", inline=False)
-		embed.add_field(name="What to do?", value="Use `@PacMe#9790 help [cmd]` for command help and `@PacMe#9790 help [module]` for module help.")
+		embed.add_field(name="What to do?", value=r"Use `{self.lmao.prefix}help [cmd]` for command help and `{self.lmao.prefix}help [module]` for module help.")
 		await self.message.edit(content=None, embed=embed)
 		
 	

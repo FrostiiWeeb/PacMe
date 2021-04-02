@@ -42,8 +42,13 @@ async def fill_blacklist():
 # Connect to the db.
 
 async def run(bot):
-	db = await __import__('asyncpg').create_pool(user=bot.asyncpg['user'], password=bot.asyncpg['password'], database='Prefixes', host='127.0.0.1')
+	db = await __import__('asyncpg').create_pool(user=bot.asyncpg['user'], password=bot.asyncpg['password'], database='PacMe', host='127.0.0.1')
 	bot.db = db
+	await bot.db.execute("CREATE TABLE IF NOT EXISTS blacklist(user_id bigint PRIMARY KEY)")
+	await bot.db.execute("CREATE TABLE IF NOT EXISTS tags(user_id bigint, name TEXT, content TEXT, author TEXT)")
+	await bot.db.execute("CREATE TABLE IF NOT EXISTS economy(user_id bigint PRIMARY KEY, wallet bigint, bank bigint)")
+	await bot.db.execute("CREATE TABLE IF NOT EXISTS emojis(name TEXT PRIMARY KEY, id bigint)")
+	await bot.db.execute("CREATE TABLE IF NOT EXISTS prefixes(guild_id bigint PRIMARY KEY, prefix TEXT)")
 	await fill_blacklist()
 	await fill_emojis()
 

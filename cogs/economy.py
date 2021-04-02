@@ -6,22 +6,10 @@ import random
 import datetime
 from discord.ext import commands
 from utils.PacBot import PacMe
+import datetime
+from discord.ext import commands
 
-class cooldown:
-	def cooldown(self, seconds):
-	       async def cooldown_predicate(ctx):
-
-	           if not (cd := await ctx.bot.db.fetchrow(f'SELECT * FROM cooldown WHERE id={ctx.author.id} AND command=$1', str(ctx.command))):
-	           	await ctx.bot.db.execute(f'INSERT INTO cooldown VALUES ({ctx.author.id}, $1, {int(time.time()+seconds)})', str(ctx.command))
-	           	return True
-	           else:
-	           	ends_at = cd[0]['ends_at'] or 0
-	           	if ends_at > time.time():
-	           		raise commands.CommandOnCooldown(f'Command {ctx.command} is on cooldown', retry_after=ends_at - time.time())
-	           	else:
-	           	   await ctx.bot.db.execute(f'UPDATE cooldown SET ends_at={int(time.time()+seconds)} WHERE id={ctx.author.id} AND command=$1', str(ctx.command))
-	           	   return True
-	           return commands.check(cooldown_predicate)	
+	
 
 class Economy(commands.Cog):
 	def __init__(self, bot):
@@ -44,9 +32,40 @@ class Economy(commands.Cog):
 			await ctx.embed(title=f"{user.name}'s balance", description=f"{self.bot.emoji_dict['greyTick']} Wallet: **${wallet}**\n{self.bot.emoji_dict['greyTick']} Bank: **${bank}**")
 		except:
 			raise self.bot.custom_errors.NotInDB("Your ID")
+			
+	@commands.command()
+	async def deposit(self, ctx, money : str):
+		deposited_money = money.strip(",")
+		final_money = int(deposited_money)
+		async with self.bot.db.acquire() as c:
+			bank = await c.fetchrow("SELECT bank FROM economy WHERE user_id = $1", ctx.author.id)		
+			new_bank = final_money + bank['bank']
+			wallet = await c.fetchrow("SELECT wallet FROM economy WHERE user_id = $1", ctx.author.id)
+			new_wallet = wallet['wallet'] - final_money
+			if str(new_wallet).startswith("-"):
+				await ctx.embed(description="You don\'t have that kind of money!")
+			else:
+				new_wallet = int(new_wallet)
+			await c.execute("UPDATE economy SET wallet = $1, bank = $2 WHERE user_id = $3;", new_wallet, new_bank, ctx.author.id)
+			
+			
+	@commands.command()
+	async def withdraw(self, ctx, money : str):
+		withdrawed_money = money.strip(",")
+		final_money = int(withdrawed_money)
+		async with self.bot.db.acquire() as c:
+			bank = await c.fetchrow("SELECT bank FROM economy WHERE user_id = $1", ctx.author.id)		
+			new_bank = final_money - bank['bank']
+			wallet = await c.fetchrow("SELECT wallet FROM economy WHERE user_id = $1", ctx.author.id)
+			new_wallet = wallet['wallet'] + final_money
+			if str(new_bank).startswith("-"):
+				await ctx.embed(description="You don\'t have that kind of money!")
+			else:
+				new_bank = int(new_bank)
+			await c.execute("UPDATE economy SET wallet = $1, bank = $2 WHERE user_id = $3;", new_wallet, new_bank, ctx.author.id)			
 	
 	@commands.command()
-	@cooldown.cooldown(cooldown, 20)
+	@commands.cooldown(1, 20, commands.BucketType.user)
 	async def beg(self, ctx):
 		money = random.randint(1, 201)
 		try:

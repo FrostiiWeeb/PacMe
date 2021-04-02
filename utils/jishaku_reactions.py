@@ -49,9 +49,9 @@ async def attempt_add_reaction(msg: discord.Message, reaction: Union[str, discor
     the source code, it will try to find the corresponding emoji that is being used instead.
     """
     reacts = {
-        "\N{WHITE HEAVY CHECK MARK}": "<:checkmark:753619798021373974>",
+        "\N{WHITE HEAVY CHECK MARK}": "<:emoji_8:825288282962133043>",
         "\N{BLACK RIGHT-POINTING TRIANGLE}": emote.forward,
-        "\N{HEAVY EXCLAMATION MARK SYMBOL}": "<:information_pp:754948796454010900>",
+        "\N{HEAVY EXCLAMATION MARK SYMBOL}": "<:error_purple_emoji:825289358957346816>",
         "\N{DOUBLE EXCLAMATION MARK}": "<:crossmark:753620331851284480>",
         "\N{ALARM CLOCK}": emote.end
     }
